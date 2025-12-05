@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { KOREA_REGIONS } from '../constants';
 
 interface OnboardingProps {
   initialName: string;
@@ -68,69 +69,108 @@ const GuideStep = () => (
   </div>
 );
 
-const ProfileStep = ({ formData, setFormData }: { formData: any, setFormData: any }) => (
-  <div className="space-y-6 animate-fade-in">
-    <div className="text-center mb-8">
-      <h2 className="text-2xl font-serif font-bold text-sage-900 mb-2">기본 정보를 입력해주세요</h2>
-      <p className="text-sage-600 text-sm">더 정확한 맞춤 추천을 위해 필요한 정보입니다</p>
-    </div>
+const ProfileStep = ({ formData, setFormData }: { formData: any, setFormData: any }) => {
+  const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const region = e.target.value;
+    setFormData({
+      ...formData,
+      region,
+      district: '', // Reset district when region changes
+      location: region // Update location string
+    });
+  };
 
-    <div className="space-y-5">
-      <div>
-        <label className="block text-xs font-bold text-sage-500 uppercase mb-2">이름 (닉네임)</label>
-        <input
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full bg-white border border-sage-200 rounded-xl p-3 text-sage-900 focus:ring-2 focus:ring-sage-400 outline-none transition-all"
-        />
+  const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const district = e.target.value;
+    setFormData({
+      ...formData,
+      district,
+      location: `${formData.region} ${district} `.trim()
+    });
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-serif font-bold text-sage-900 mb-2">기본 정보를 입력해주세요</h2>
+        <p className="text-sage-600 text-sm">더 정확한 맞춤 추천을 위해 필요한 정보입니다</p>
       </div>
 
-      <div>
-        <label className="block text-xs font-bold text-sage-500 uppercase mb-2">성별</label>
-        <div className="flex gap-2">
-          {['여성', '남성', '선택안함'].map((gender) => (
-            <button
-              key={gender}
-              onClick={() => setFormData({ ...formData, gender })}
-              className={`flex-1 py-3 rounded-xl text-sm font-medium border transition-all ${formData.gender === gender
+      <div className="space-y-5">
+        <div>
+          <label className="block text-xs font-bold text-sage-500 uppercase mb-2">이름 (닉네임)</label>
+          <input
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="w-full bg-white border border-sage-200 rounded-xl p-3 text-sage-900 focus:ring-2 focus:ring-sage-400 outline-none transition-all"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-sage-500 uppercase mb-2">성별</label>
+          <div className="flex gap-2">
+            {['여성', '남성', '선택안함'].map((gender) => (
+              <button
+                key={gender}
+                onClick={() => setFormData({ ...formData, gender })}
+                className={`flex - 1 py - 3 rounded - xl text - sm font - medium border transition - all ${formData.gender === gender
                   ? 'bg-sage-600 text-white border-sage-600'
                   : 'bg-white text-sage-600 border-sage-200 hover:bg-sage-50'
-                }`}
+                  } `}
+              >
+                {gender}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-sage-500 uppercase mb-2">연령대</label>
+          <select
+            value={formData.ageGroup}
+            onChange={(e) => setFormData({ ...formData, ageGroup: e.target.value })}
+            className="w-full bg-white border border-sage-200 rounded-xl p-3 text-sage-900 focus:ring-2 focus:ring-sage-400 outline-none"
+          >
+            <option value="">연령대를 선택해주세요</option>
+            <option value="10">10대</option>
+            <option value="20">20대</option>
+            <option value="30">30대</option>
+            <option value="40">40대</option>
+            <option value="50">50대 이상</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-sage-500 uppercase mb-2">거주 지역</label>
+          <div className="flex gap-2">
+            <select
+              value={formData.region || ''}
+              onChange={handleRegionChange}
+              className="flex-1 bg-white border border-sage-200 rounded-xl p-3 text-sage-900 focus:ring-2 focus:ring-sage-400 outline-none"
             >
-              {gender}
-            </button>
-          ))}
+              <option value="">시/도 선택</option>
+              {Object.keys(KOREA_REGIONS).map(region => (
+                <option key={region} value={region}>{region}</option>
+              ))}
+            </select>
+
+            <select
+              value={formData.district || ''}
+              onChange={handleDistrictChange}
+              disabled={!formData.region}
+              className="flex-1 bg-white border border-sage-200 rounded-xl p-3 text-sage-900 focus:ring-2 focus:ring-sage-400 outline-none disabled:bg-gray-100 disabled:text-gray-400"
+            >
+              <option value="">시/구/군 선택</option>
+              {formData.region && KOREA_REGIONS[formData.region]?.map(district => (
+                <option key={district} value={district}>{district}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
-
-      <div>
-        <label className="block text-xs font-bold text-sage-500 uppercase mb-2">연령대</label>
-        <select
-          value={formData.ageGroup}
-          onChange={(e) => setFormData({ ...formData, ageGroup: e.target.value })}
-          className="w-full bg-white border border-sage-200 rounded-xl p-3 text-sage-900 focus:ring-2 focus:ring-sage-400 outline-none"
-        >
-          <option value="">연령대를 선택해주세요</option>
-          <option value="10">10대</option>
-          <option value="20">20대</option>
-          <option value="30">30대</option>
-          <option value="40">40대</option>
-          <option value="50">50대 이상</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-xs font-bold text-sage-500 uppercase mb-2">거주 지역 (시/도)</label>
-        <input
-          placeholder="예: 서울, 부산, 경기도"
-          value={formData.location}
-          onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-          className="w-full bg-white border border-sage-200 rounded-xl p-3 text-sage-900 focus:ring-2 focus:ring-sage-400 outline-none transition-all"
-        />
-      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const AlarmStep = ({ formData, setFormData }: { formData: any, setFormData: any }) => {
   const times = [
@@ -171,10 +211,10 @@ const AlarmStep = ({ formData, setFormData }: { formData: any, setFormData: any 
             <button
               key={day}
               onClick={() => toggleDay(day)}
-              className={`w-10 h-10 rounded-full text-sm font-medium transition-all ${formData.alarmDays.includes(day)
-                  ? 'bg-sage-600 text-white shadow-md'
-                  : 'bg-white text-sage-400 border border-sage-100 hover:border-sage-300'
-                }`}
+              className={`w - 10 h - 10 rounded - full text - sm font - medium transition - all ${formData.alarmDays.includes(day)
+                ? 'bg-sage-600 text-white shadow-md'
+                : 'bg-white text-sage-400 border border-sage-100 hover:border-sage-300'
+                } `}
             >
               {day}
             </button>
@@ -189,10 +229,10 @@ const AlarmStep = ({ formData, setFormData }: { formData: any, setFormData: any 
             <button
               key={time.id}
               onClick={() => toggleTime(time.id)}
-              className={`w-full p-4 rounded-xl text-left transition-all border ${formData.alarmTimes.includes(time.id)
-                  ? 'bg-sage-50 border-sage-400 ring-1 ring-sage-400 text-sage-900'
-                  : 'bg-white border-sage-100 text-sage-500 hover:bg-sage-50'
-                }`}
+              className={`w - full p - 4 rounded - xl text - left transition - all border ${formData.alarmTimes.includes(time.id)
+                ? 'bg-sage-50 border-sage-400 ring-1 ring-sage-400 text-sage-900'
+                : 'bg-white border-sage-100 text-sage-500 hover:bg-sage-50'
+                } `}
             >
               <span className="font-medium">{time.label}</span>
             </button>
@@ -213,6 +253,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ initialName, onComplete }) => {
     name: initialName,
     gender: '',
     ageGroup: '',
+    region: '',
+    district: '',
     location: '',
     alarmDays: [] as string[],
     alarmTimes: [] as string[]
