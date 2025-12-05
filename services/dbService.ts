@@ -116,14 +116,18 @@ export const dbService = {
     },
 
     async updateUserProfile(userId: string, updates: Partial<UserProfile>) {
-        const dbUpdates: any = {};
+        const dbUpdates: any = {
+            id: userId, // Required for upsert
+            updated_at: new Date(),
+        };
         if (updates.nickname) dbUpdates.nickname = updates.nickname;
         if (updates.preferredLibCodes) dbUpdates.preferred_lib_codes = updates.preferredLibCodes;
+        if (updates.email) dbUpdates.email = updates.email; // Optional if passed
 
         const { error } = await supabase
             .from('profiles')
-            .update(dbUpdates)
-            .eq('id', userId);
+            .upsert(dbUpdates)
+            .select();
 
         if (error) throw error;
     },
