@@ -1,0 +1,7 @@
+{
+  "name": "Sowon - Reading Therapy Agent",
+  "description": "A gentle AI bibliotherapist that offers comfort through literature and empathetic conversation.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
