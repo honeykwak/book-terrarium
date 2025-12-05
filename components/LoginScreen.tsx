@@ -53,7 +53,21 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   const handleSocialLogin = async (provider: 'google' | 'kakao' | 'azure') => {
-    alert(`${provider} 로그인 기능은 준비 중입니다.`);
+    if (provider === 'google') {
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: window.location.origin
+          }
+        });
+        if (error) throw error;
+      } catch (err: any) {
+        alert('Google 로그인 중 오류가 발생했습니다: ' + err.message);
+      }
+    } else {
+      alert(`${provider} 로그인 기능은 준비 중입니다.`);
+    }
   };
 
   return (
