@@ -1,7 +1,6 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Message, Role, ModelType, Book, CommunityPost, ChatSession, ReportAnalytics } from './types';
-import { sendMessageStream, resetChat } from './services/geminiService';
+import { initializeChat, sendMessageStream, resetChat, checkAvailableModels } from './services/geminiService';
 import { searchBooks } from './services/googleBooksService';
 import { dbService } from './services/dbService';
 import { supabase } from './supabaseClient';
@@ -104,7 +103,7 @@ const MyPageModal: React.FC<{
           {userName ? userName.charAt(0).toUpperCase() : 'G'}
         </div>
         <h3 className="text-xl font-serif font-bold text-sage-900">{userName}</h3>
-        <p className="text-xs text-sage-500">{userProfile?.ageGroup ? `${userProfile.ageGroup}대` : ''} · {userProfile?.location || '나의 작은 정원'}</p>
+        <p className="text-xs text-sage-500">{userProfile?.ageGroup ? `${userProfile.ageGroup} 대` : ''} · {userProfile?.location || '나의 작은 정원'}</p>
       </div>
 
       {/* Stats */}
@@ -261,7 +260,7 @@ const LibraryModal: React.FC<{
                     <button
                       key={tab.id}
                       onClick={() => setLibraryTab(tab.id as LibraryTab)}
-                      className={`flex-1 pb-3 text-sm font-bold transition-colors whitespace-nowrap px-2 ${libraryTab === tab.id ? 'text-sage-700 border-b-2 border-sage-700' : 'text-sage-400 hover:text-sage-600'}`}
+                      className={`flex - 1 pb - 3 text - sm font - bold transition - colors whitespace - nowrap px - 2 ${libraryTab === tab.id ? 'text-sage-700 border-b-2 border-sage-700' : 'text-sage-400 hover:text-sage-600'} `}
                     >
                       {tab.label}
                     </button>
@@ -358,11 +357,11 @@ const LibraryModal: React.FC<{
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-sage-100 h-[500px] overflow-y-auto custom-scrollbar animate-fade-in">
                       {viewingBook.chatHistory && viewingBook.chatHistory.length > 0 ? (
                         viewingBook.chatHistory.map(msg => (
-                          <div key={msg.id} className={`mb-4 ${msg.role === Role.USER ? 'text-right' : 'text-left'}`}>
-                            <div className={`inline-block p-3 rounded-lg text-sm max-w-[85%] ${msg.role === Role.USER
-                              ? 'bg-sage-100 text-sage-800'
-                              : 'bg-white border border-sage-100 text-sage-700'
-                              }`}>
+                          <div key={msg.id} className={`mb - 4 ${msg.role === Role.USER ? 'text-right' : 'text-left'} `}>
+                            <div className={`inline - block p - 3 rounded - lg text - sm max - w - [85 %] ${msg.role === Role.USER
+                                ? 'bg-sage-100 text-sage-800'
+                                : 'bg-white border border-sage-100 text-sage-700'
+                              } `}>
                               <MarkdownRenderer content={msg.content} />
                             </div>
                             <div className="text-[10px] text-sage-300 mt-1">
@@ -388,10 +387,10 @@ const LibraryModal: React.FC<{
                         </h4>
                         <button
                           onClick={() => handleToggleShare(viewingBook.id)}
-                          className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold transition-all ${viewingBook.isShared
-                            ? 'bg-sage-600 text-white'
-                            : 'bg-sage-100 text-sage-500'
-                            }`}
+                          className={`flex items - center gap - 2 px - 3 py - 1 rounded - full text - xs font - bold transition - all ${viewingBook.isShared
+                              ? 'bg-sage-600 text-white'
+                              : 'bg-sage-100 text-sage-500'
+                            } `}
                         >
                           <ShareIcon className="w-3 h-3" />
                           {viewingBook.isShared ? '공유 중' : '나만 보기'}
@@ -451,7 +450,7 @@ const LibraryModal: React.FC<{
                               <div className="flex items-center gap-4 border-t border-sage-50 pt-3">
                                 <button
                                   onClick={() => handleLikePost(post.id)}
-                                  className={`flex items-center gap-1 text-xs font-bold transition-colors ${post.isLiked ? 'text-red-400' : 'text-sage-400 hover:text-sage-600'}`}
+                                  className={`flex items - center gap - 1 text - xs font - bold transition - colors ${post.isLiked ? 'text-red-400' : 'text-sage-400 hover:text-sage-600'} `}
                                 >
                                   <HeartIcon className="w-4 h-4" filled={post.isLiked} />
                                   {post.likes}
@@ -669,7 +668,7 @@ const App: React.FC = () => {
       const initialMsg: Message = {
         id: 'init-msg',
         role: Role.MODEL,
-        content: `**[${currentBook.title}]** 독서를 계속하고 계시네요.\n오늘 이 책의 어떤 구절이 마음에 와닿으셨나요?`,
+        content: `** [${currentBook.title}] ** 독서를 계속하고 계시네요.\n오늘 이 책의 어떤 구절이 마음에 와닿으셨나요 ? `,
         timestamp: new Date(),
         isSystem: true
       };
@@ -878,7 +877,7 @@ const App: React.FC = () => {
       const systemMsg: Message = {
         id: Date.now().toString(),
         role: Role.MODEL,
-        content: `**[${book.title}]** 독서 모드를 시작합니다.\n이 책의 첫 문장을 읽고 어떤 느낌이 드셨나요?`,
+        content: `** [${book.title}] ** 독서 모드를 시작합니다.\n이 책의 첫 문장을 읽고 어떤 느낌이 드셨나요 ? `,
         timestamp: new Date(),
         isSystem: true
       };
@@ -949,9 +948,9 @@ const App: React.FC = () => {
         const recommendationPrompt = `
           User input: "${text}"
           Based on this input, recommend 3 specific book titles that would be helpful.
-          Return ONLY a JSON array of strings. Do not include any other text.
-          Example: ["Demian", "The Little Prince", "Walden"]
-        `;
+          Return ONLY a JSON array of strings.Do not include any other text.
+  Example: ["Demian", "The Little Prince", "Walden"]
+    `;
 
         let jsonString = '';
         await sendMessageStream(
@@ -962,7 +961,7 @@ const App: React.FC = () => {
         );
 
         // Clean up markdown code blocks if present
-        jsonString = jsonString.replace(/```json/g, '').replace(/```/g, '').trim();
+        jsonString = jsonString.replace(/```json / g, '').replace(/```/g, '').trim();
 
         let titles: string[] = [];
         try {
