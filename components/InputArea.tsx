@@ -1,14 +1,16 @@
 import React, { useRef, useEffect } from 'react';
-import { PlusIcon, SendIcon, MicIcon } from './Icon';
+import { PlusIcon, SendIcon, MicIcon, StopIcon } from './Icon';
 
 interface Props {
   value: string;
   onChange: (val: string) => void;
   onSend: () => void;
   isLoading: boolean;
+  onStop?: () => void;
+  isStreaming?: boolean;
 }
 
-const InputArea: React.FC<Props> = ({ value, onChange, onSend, isLoading }) => {
+const InputArea: React.FC<Props> = ({ value, onChange, onSend, isLoading, onStop, isStreaming }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-resize textarea
@@ -51,8 +53,16 @@ const InputArea: React.FC<Props> = ({ value, onChange, onSend, isLoading }) => {
           className="w-full py-3.5 px-2 bg-transparent border-none focus:ring-0 resize-none text-sage-800 placeholder-sage-400 max-h-[150px] overflow-y-auto outline-none"
         />
 
-        {/* Send or Mic Button */}
-        {value.trim() ? (
+        {/* Send, Stop, or Mic Button */}
+        {isStreaming && onStop ? (
+          <button
+            onClick={onStop}
+            className="p-3 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors flex-shrink-0 mb-0.5 animate-pulse shadow-md"
+            title="생성 중단"
+          >
+            <StopIcon className="w-5 h-5 fill-current" />
+          </button>
+        ) : value.trim() ? (
           <button
             onClick={onSend}
             disabled={isLoading}

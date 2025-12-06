@@ -1651,6 +1651,8 @@ const App: React.FC = () => {
             onChange={setInputValue}
             onSend={() => handleSend()}
             isLoading={isLoading}
+            onStop={handleStopGeneration}
+            isStreaming={isStreaming}
           />
         </div>
 

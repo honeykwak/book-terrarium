@@ -2,7 +2,7 @@ import React from 'react';
 import {
   MenuIcon, ChevronDownIcon, LeafIcon, LibraryIcon,
   PlusIcon, SparklesIcon, CheckCircleIcon, XIcon, UserIcon, LogOutIcon, SpinnerIcon,
-  HeartIcon, ShareIcon, LockIcon, EditIcon, HistoryIcon, BrainIcon, TargetIcon, TrendingUpIcon, TrashIcon, RefreshIcon, StopIcon
+  HeartIcon, ShareIcon, LockIcon, EditIcon, HistoryIcon, BrainIcon, TargetIcon, TrendingUpIcon, TrashIcon, RefreshIcon
 } from '../components/Icon';
 import { Message, Role, Book } from '../types';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -43,15 +43,7 @@ const MessageBubble: React.FC<Props> = ({ message, onBookSelect, onRegenerate, o
             </div>
           )}
           {/* Action Buttons (Hover) */}
-          {/* AI Message Actions (Right Side) */}
           <div className="absolute top-2 -right-8 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
-            {/* Stop Button */}
-            {!isUser && onStop && message.isStreaming && (
-              <button onClick={onStop} className="p-1 text-red-400 hover:text-red-600 animate-pulse" title="생성 중단">
-                <StopIcon className="w-4 h-4" />
-              </button>
-            )}
-
             {!isUser && onRegenerate && !message.isStreaming && (
               <button onClick={onRegenerate} className="p-1 text-sage-400 hover:text-sage-600" title="다시 생성">
                 <RefreshIcon className="w-4 h-4" />
