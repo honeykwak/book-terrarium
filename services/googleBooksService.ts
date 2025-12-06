@@ -13,7 +13,24 @@ export const searchBooks = async (query: string): Promise<Book[]> => {
         return data.items.map((item: any) => {
             const info = item.volumeInfo;
             const randomColor = COVER_COLORS[Math.floor(Math.random() * COVER_COLORS.length)];
-            const coverUrl = info.imageLinks?.thumbnail?.replace(/^http:\/\//i, 'https://');
+
+            // 1. Try Google Books Covers
+            let coverUrl = info.imageLinks?.thumbnail || info.imageLinks?.smallThumbnail;
+
+            // 2. Fallback to Open Library if Google fails but ISBN exists
+            if (!coverUrl && info.industryIdentifiers) {
+                const isbn13 = info.industryIdentifiers.find((id: any) => id.type === 'ISBN_13')?.identifier;
+                const isbn10 = info.industryIdentifiers.find((id: any) => id.type === 'ISBN_10')?.identifier;
+                const isbn = isbn13 || isbn10;
+                if (isbn) {
+                    coverUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`;
+                }
+            }
+
+            // Ensure HTTPS
+            if (coverUrl) {
+                coverUrl = coverUrl.replace(/^http:\/\//i, 'https://');
+            }
 
             return {
                 id: item.id,
@@ -22,6 +39,7 @@ export const searchBooks = async (query: string): Promise<Book[]> => {
                 coverColor: randomColor,
                 coverUrl: coverUrl,
                 startDate: new Date(),
+                isbn: info.industryIdentifiers?.find((id: any) => id.type === 'ISBN_13')?.identifier
             };
         });
     } catch (error) {
