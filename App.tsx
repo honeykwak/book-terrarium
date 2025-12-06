@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Message, Role, ModelType, Book, CommunityPost, ChatSession, ReportAnalytics } from './types';
-import { initializeChat, sendMessageStream, resetChat, checkAvailableModels } from './services/geminiService';
+import { checkAvailableModels, resetChat, sendMessageStream, generateReport } from './services/geminiService';
 import { searchBooks } from './services/googleBooksService';
 import { dbService } from './services/dbService';
 import { supabase } from './supabaseClient';
@@ -741,6 +741,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState('');
   const [dbError, setDbError] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<ModelType>(ModelType.FLASH);
 
@@ -924,32 +925,33 @@ const App: React.FC = () => {
 
 
     try {
-      // Generate mock report (in real app, this would come from AI analysis of chat history)
-      const mockReport: ReportAnalytics = {
-        emotionAnalysis: {
-          primary: '성취감',
-          intensity: 8,
-          keywords: ['완독', '뿌듯함', '새로운 시작']
-        },
-        readingHabits: {
-          sessionCount: 12,
-          avgDurationMinutes: 45
-        },
-        growthAreas: ['꾸준한 독서 습관', '깊이 있는 사색']
-      };
+      // AI Report Generation
+      let report: ReportAnalytics | undefined;
+      try {
+        setLoadingText('AI가 독서 여정을 분석 중입니다...\n잠시만 기다려주세요.');
+        report = await generateReport(messages);
+      } catch (e) {
+        console.error("AI Report Generation Failed, using fallback", e);
+        report = {
+          emotionAnalysis: { primary: '알 수 없음', intensity: 0, keywords: [] },
+          readingHabits: { sessionCount: messages.filter(m => m.sessionId).length || 1, avgDurationMinutes: 0 },
+          growthAreas: ['분석 정보가 부족합니다.']
+        };
+      }
 
       const analytics = {
-        summary: "독서를 통해 차분함을 되찾으셨습니다.",
-        emotionTrajectory: [{ progress: 0, score: 3 }, { progress: 50, score: 4 }, { progress: 100, score: 4 }],
-        focusAreas: [{ label: '안정', percentage: 60, color: '#10B981' }, { label: '이해', percentage: 40, color: '#6366F1' }],
-        keywords: [{ label: '시작', count: 5 }],
-        actionItems: ["마음속 문장 간직하기"]
+        summary: report.emotionAnalysis?.primary ? `${report.emotionAnalysis.primary}을(를) 느끼셨군요.` : "독서를 완료하셨습니다.",
+        emotionTrajectory: [],
+        focusAreas: [],
+        keywords: [],
+        actionItems: []
       };
+
 
       await dbService.updateUserBook(currentBook.id, {
         completedDate: new Date(),
         status: 'COMPLETED',
-        report: mockReport
+        report: report
       });
 
       // Mark the session as completed
@@ -959,8 +961,8 @@ const App: React.FC = () => {
       const completed: Book = {
         ...currentBook,
         completedDate: new Date(),
-        report: mockReport,
-        analytics: analytics,
+        report: report,
+        analytics: analytics, // Legacy/Fallback compatibility
         review: '',
         isShared: false,
         chatHistory: [...messages]
@@ -973,14 +975,16 @@ const App: React.FC = () => {
 
       setMessages([]);
       setCurrentBook(null);
-      setCurrentSession(null); // Clear current session after finishing book
+      setCurrentSession(null);
       setMessageCount(0);
       resetChat();
       setIsLoading(false);
+      setLoadingText('');
       setShowLibrary(true);
     } catch (error) {
       console.error('Error finishing book:', error);
       setIsLoading(false);
+      setLoadingText('');
     }
   };
 
@@ -1436,6 +1440,16 @@ const App: React.FC = () => {
             <button onClick={() => setDbError(null)} className="absolute top-0 bottom-0 right-0 px-4 py-3">
               <span className="text-xl">&times;</span>
             </button>
+          </div>
+        )}
+
+        {/* Loading Overlay with Text */}
+        {isLoading && loadingText && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm animate-fade-in">
+            <div className="flex flex-col items-center">
+              <SpinnerIcon className="w-10 h-10 text-sage-600 animate-spin mb-4" />
+              <p className="text-sage-800 font-bold text-lg whitespace-pre-wrap text-center">{loadingText}</p>
+            </div>
           </div>
         )}
 
