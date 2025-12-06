@@ -359,8 +359,8 @@ const LibraryModal: React.FC<{
                         viewingBook.chatHistory.map(msg => (
                           <div key={msg.id} className={`mb - 4 ${msg.role === Role.USER ? 'text-right' : 'text-left'} `}>
                             <div className={`inline - block p - 3 rounded - lg text - sm max - w - [85 %] ${msg.role === Role.USER
-                                ? 'bg-sage-100 text-sage-800'
-                                : 'bg-white border border-sage-100 text-sage-700'
+                              ? 'bg-sage-100 text-sage-800'
+                              : 'bg-white border border-sage-100 text-sage-700'
                               } `}>
                               <MarkdownRenderer content={msg.content} />
                             </div>
@@ -388,8 +388,8 @@ const LibraryModal: React.FC<{
                         <button
                           onClick={() => handleToggleShare(viewingBook.id)}
                           className={`flex items - center gap - 2 px - 3 py - 1 rounded - full text - xs font - bold transition - all ${viewingBook.isShared
-                              ? 'bg-sage-600 text-white'
-                              : 'bg-sage-100 text-sage-500'
+                            ? 'bg-sage-600 text-white'
+                            : 'bg-sage-100 text-sage-500'
                             } `}
                         >
                           <ShareIcon className="w-3 h-3" />
@@ -961,7 +961,7 @@ const App: React.FC = () => {
         );
 
         // Clean up markdown code blocks if present
-        jsonString = jsonString.replace(/```json / g, '').replace(/```/g, '').trim();
+        jsonString = jsonString.replace(/```json/g, '').replace(/```/g, '').trim();
 
         let titles: string[] = [];
         try {
