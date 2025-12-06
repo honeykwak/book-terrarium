@@ -510,10 +510,11 @@ const SidebarContent: React.FC<{
   userName: string;
   handleNewChat: () => void;
   handleSelectSession: (session: ChatSession) => void;
+  handleDeleteSession: (sessionId: string) => void; // New Prop
   handleRequestFinish: () => void; // Keeping for context menu or future use
   setShowMyPage: (v: boolean) => void;
   // setCurrentBook no longer needed here as selection handles it
-}> = ({ currentBook, sessions, currentSessionId, userName, handleNewChat, handleSelectSession, handleRequestFinish, setShowMyPage }) => (
+}> = ({ currentBook, sessions, currentSessionId, userName, handleNewChat, handleSelectSession, handleDeleteSession, handleRequestFinish, setShowMyPage }) => (
   <div className="flex flex-col h-full">
     {/* Header */}
     <div className="px-6 pt-6 pb-4">
@@ -538,32 +539,47 @@ const SidebarContent: React.FC<{
           const displayTitle = session.bookTitle || '소원과의 대화';
 
           return (
-            <button
-              key={session.id}
-              onClick={() => handleSelectSession(session)}
-              className={`w-full text-left p-3 rounded-xl transition-all relative group ${isActive
-                ? 'bg-white shadow-md border border-sage-100'
-                : 'hover:bg-sage-100/50 border border-transparent'
-                }`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex flex-col gap-0.5 w-full">
-                  {/* Title Priority: Book Name > Default */}
-                  <span className={`text-sm font-bold truncate ${isActive ? 'text-sage-900' : 'text-sage-700'}`}>
-                    {displayTitle}
-                  </span>
+            <div key={session.id} className="relative group">
+              <button
+                onClick={() => handleSelectSession(session)}
+                className={`w-full text-left p-3 rounded-xl transition-all relative pr-10 ${isActive
+                  ? 'bg-white shadow-md border border-sage-100'
+                  : 'hover:bg-sage-100/50 border border-transparent'
+                  }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex flex-col gap-0.5 w-full">
+                    {/* Title Priority: Book Name > Default */}
+                    <span className={`text-sm font-bold truncate ${isActive ? 'text-sage-900' : 'text-sage-700'}`}>
+                      {displayTitle}
+                    </span>
 
-                  {/* Date Subtitle */}
-                  <span className="text-[10px] text-sage-400 font-medium">
-                    {new Date(session.createdAt).toLocaleDateString()} {new Date(session.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
+                    {/* Date Subtitle */}
+                    <span className="text-[10px] text-sage-400 font-medium">
+                      {new Date(session.createdAt).toLocaleDateString()} {new Date(session.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              {isActive && (
-                <div className="absolute right-0 top-0 bottom-0 w-1 bg-sage-800 rounded-r-xl"></div>
-              )}
-            </button>
+                {isActive && (
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-sage-800 rounded-r-xl"></div>
+                )}
+              </button>
+
+              {/* Delete Button - Hover on Desktop, Always Visible (Subtle) on Mobile */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (confirm('이 대화 기록을 삭제하시겠습니까?')) {
+                    handleDeleteSession(session.id);
+                  }
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-sage-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10"
+                title="대화 삭제"
+              >
+                <TrashIcon className="w-4 h-4" />
+              </button>
+            </div>
           );
         })}
 
@@ -1162,6 +1178,28 @@ const App: React.FC = () => {
     />
   );
 
+  const handleDeleteSession = async (sessionId: string) => {
+    try {
+      await dbService.deleteSession(sessionId);
+
+      // Update local state
+      const updatedSessions = sessions.filter(s => s.id !== sessionId);
+      setSessions(updatedSessions);
+
+      // If deleted active session, reset view
+      if (currentSession?.id === sessionId) {
+        if (updatedSessions.length > 0) {
+          handleSelectSession(updatedSessions[0]);
+        } else {
+          handleNewChat();
+        }
+      }
+    } catch (e) {
+      console.error("Failed to delete session:", e);
+      setDbError("대화 삭제 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <div className="flex h-screen bg-sage-100 font-sans overflow-hidden text-sage-900">
 
@@ -1207,6 +1245,7 @@ const App: React.FC = () => {
           userName={userName}
           handleNewChat={handleNewChat}
           handleSelectSession={handleSelectSession}
+          handleDeleteSession={handleDeleteSession}
           handleRequestFinish={handleRequestFinish}
           setShowMyPage={setShowMyPage}
         />
@@ -1222,17 +1261,19 @@ const App: React.FC = () => {
           <aside className="relative w-72 h-full bg-sage-50 flex flex-col shadow-2xl animate-slide-in-left">
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute top-4 right-4 p-2 text-sage-400 hover:text-sage-600"
+              className="absolute top-4 right-4 p-2 text-sage-400 hover:text-sage-600 z-50"
             >
               <PlusIcon className="w-6 h-6 rotate-45" />
             </button>
             <SidebarContent
               currentBook={currentBook}
-              messages={messages}
+              sessions={sessions}
+              currentSessionId={currentSession?.id}
               userName={userName}
               handleNewChat={handleNewChat}
+              handleSelectSession={handleSelectSession}
+              handleDeleteSession={handleDeleteSession}
               handleRequestFinish={handleRequestFinish}
-              setCurrentBook={setCurrentBook}
               setShowMyPage={setShowMyPage}
             />
           </aside>
