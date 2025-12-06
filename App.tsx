@@ -1116,7 +1116,8 @@ const App: React.FC = () => {
       setMessageCount(prev => prev + 1);
     }
     // --- TRIGGER: Real Book Recommendation ---
-    if (text.includes("추천") || text.includes("recommend")) {
+    // Only trigger if NOT currently reading a book, to avoid interruption when asking "Why did you recommend this?"
+    if ((text.includes("추천") || text.includes("recommend")) && !currentBook) {
       setIsLoading(true);
 
       try {
