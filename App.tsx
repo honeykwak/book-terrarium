@@ -378,8 +378,26 @@ const LibraryModal: React.FC<{
                       {/* Original Markdown Report Fallback/Footer */}
                       {viewingBook.report && (
                         <div className="bg-white rounded-3xl p-6 shadow-sm border border-sage-100 mt-4">
-                          <h5 className="font-bold text-sage-900 mb-4">📝 소원의 상세 코멘트</h5>
-                          <MarkdownRenderer content={viewingBook.report} className="text-sm" />
+                          <h5 className="font-bold text-sage-900 mb-4">🌱 성장 포인트</h5>
+                          <div className="flex flex-wrap gap-2">
+                            {viewingBook.report.growthAreas?.map((area, idx) => (
+                              <span key={idx} className="px-3 py-1.5 bg-sage-100 text-sage-700 text-xs rounded-full font-medium">
+                                {area}
+                              </span>
+                            ))}
+                          </div>
+                          {viewingBook.report.readingHabits && (
+                            <div className="mt-4 pt-4 border-t border-sage-50 grid grid-cols-2 gap-4">
+                              <div className="text-center">
+                                <div className="text-xs text-sage-400 mb-1">총 대화 세션</div>
+                                <div className="text-lg font-bold text-sage-800">{viewingBook.report.readingHabits.sessionCount}회</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-xs text-sage-400 mb-1">평균 대화 시간</div>
+                                <div className="text-lg font-bold text-sage-800">{viewingBook.report.readingHabits.avgDurationMinutes}분</div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
