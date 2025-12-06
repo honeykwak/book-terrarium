@@ -24,7 +24,7 @@ export interface ChatSession {
 }
 
 export enum ModelType {
-  FLASH = 'gemini-1.5-flash-001',
+  FLASH = 'gemini-1.5-flash',
   PRO = 'gemini-1.5-pro'
 }
 
