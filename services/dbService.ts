@@ -166,6 +166,7 @@ export const dbService = {
         const payload: any = { user_id: userId };
         if (userBookId) {
             payload.user_book_id = userBookId;
+            payload.expires_at = null; // Book sessions are permanent
         }
 
         const { data, error } = await supabase
