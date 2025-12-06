@@ -968,6 +968,9 @@ const App: React.FC = () => {
 
       setCompletedBooks(prev => [completed, ...prev]);
 
+      // Remove the completed session from the sidebar list
+      setSessions(prev => prev.filter(s => s.id !== currentSession.id));
+
       setMessages([]);
       setCurrentBook(null);
       setCurrentSession(null); // Clear current session after finishing book
