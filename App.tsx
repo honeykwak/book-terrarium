@@ -985,7 +985,7 @@ const App: React.FC = () => {
         const recMsg: Message = {
           id: (Date.now() + 1).toString(),
           role: Role.MODEL,
-          content: "지수님의 상황에 맞는 책들을 찾아보았습니다.\n이 책들이 위로가 되기를 바랍니다.",
+          content: `${userName ? userName + '님' : '당신'}의 상황에 맞는 책들을 찾아보았습니다.\n이 책들이 위로가 되기를 바랍니다.`,
           timestamp: new Date(),
           recommendedBooks: recommendedBooks
         };
