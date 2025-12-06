@@ -891,6 +891,33 @@ const App: React.FC = () => {
       }
     };
 
+    const handleSelectSession = async (session: ChatSession) => {
+      setCurrentSession(session);
+      setIsLoading(true);
+      try {
+        const msgs = await dbService.getMessages(session.id);
+        setMessages(msgs);
+
+        if (session.userBookId) {
+          // Find the book logic
+          // We need all books to find specifics, doing a fetch or finding in state if we had it.
+          // For simplicity, let's just fetch user books again or trust linking.
+          // To avoid an extra call, we can rely on cached `completedBooks` + `currentBook` or just fetch again.
+          // Fetching again is safer.
+          const allBooks = await dbService.getUserBooks(session.userId);
+          const book = allBooks.find(b => b.id === session.userBookId);
+          setCurrentBook(book || null);
+        } else {
+          setCurrentBook(null);
+        }
+        setIsMobileMenuOpen(false);
+      } catch (e) {
+        console.error("Failed to load session:", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     const handleSend = async (text: string = inputValue, isHiddenPrompt: boolean = false) => {
       if ((!text.trim() && !isHiddenPrompt) || isLoading) return;
 
