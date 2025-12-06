@@ -1652,15 +1652,7 @@ const App: React.FC = () => {
 
         {/* Input Area */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-sage-100 via-sage-100 to-transparent pt-10 pb-2 z-20">
-          {currentBook && (
-            <div className="max-w-3xl mx-auto px-4 mb-2 flex justify-center">
-              <div className="bg-sage-800 text-white text-xs px-3 py-1 rounded-full shadow-lg opacity-80 flex items-center gap-2">
-                <span>Reading Mode On</span>
-                <span className="w-1 h-1 bg-white rounded-full"></span>
-                <span>{currentBook.title}</span>
-              </div>
-            </div>
-          )}
+
           <InputArea
             value={inputValue}
             onChange={setInputValue}
