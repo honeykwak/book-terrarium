@@ -200,6 +200,30 @@ export const dbService = {
         if (error) throw error;
     },
 
+    async getUserSessions(userId: string): Promise<(ChatSession & { bookTitle?: string })[]> {
+        const { data, error } = await supabase
+            .from('chat_sessions')
+            .select(`
+                *,
+                user_book:user_books(
+                    book:books(title)
+                )
+            `)
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+
+        if (error) return [];
+
+        return data.map((item: any) => ({
+            id: item.id,
+            userId: item.user_id,
+            userBookId: item.user_book_id,
+            expiresAt: item.expires_at ? new Date(item.expires_at) : null,
+            createdAt: new Date(item.created_at),
+            bookTitle: item.user_book?.book?.title
+        }));
+    },
+
     // --- Messages ---
     async saveMessage(sessionId: string, message: Message) {
         const { error } = await supabase
