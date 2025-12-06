@@ -602,6 +602,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [dbError, setDbError] = useState<string | null>(null); // New error state
   const [selectedModel, setSelectedModel] = useState<ModelType>(ModelType.FLASH);
 
   // Mobile Sidebar
@@ -890,12 +891,14 @@ const App: React.FC = () => {
         activeSessionId = newSession.id;
       } catch (e) {
         console.error("Failed to create session:", e);
+        setDbError("채팅 세션을 생성할 수 없습니다. 데이터베이스 권한을 확인해주세요. (403 Error)");
         return;
       }
     }
 
     if (!activeSessionId) {
       console.error("No active session to send message.");
+      setDbError("활성 세션이 없습니다. 새로고침 후 다시 시도해주세요.");
       return;
     }
 
@@ -1169,6 +1172,15 @@ const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full relative">
+        {dbError && (
+          <div className="absolute top-20 left-4 right-4 z-50 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong className="font-bold">오류 발생: </strong>
+            <span className="block sm:inline">{dbError}</span>
+            <button onClick={() => setDbError(null)} className="absolute top-0 bottom-0 right-0 px-4 py-3">
+              <span className="text-xl">&times;</span>
+            </button>
+          </div>
+        )}
 
         {/* Header */}
         <header className="flex items-center justify-between p-4 md:p-6 sticky top-0 z-10 bg-sage-100/95 backdrop-blur-sm">
