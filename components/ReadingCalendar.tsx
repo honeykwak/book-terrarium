@@ -4,7 +4,7 @@ interface Props {
     activityData: Record<string, number>; // date "YYYY-MM-DD" -> count
 }
 
-const ReadingCalendar: React.FC<Props> = ({ activityData }) => {
+const ReadingCalendar: React.FC<Props> = ({ activityData = {} }) => {
     // Generate last 365 days
     const today = new Date();
     const days = [];
@@ -37,14 +37,6 @@ const ReadingCalendar: React.FC<Props> = ({ activityData }) => {
             <div className="flex gap-1 overflow-x-auto pb-2 custom-scrollbar justify-end">
                 {/* We need to group by weeks for the grid layout (columns = weeks, rows = days) */}
                 {Array.from({ length: 53 }).map((_, weekIndex) => {
-                    // This ensures we start correctly aligned? 
-                    // GitHub chart essentially renders columns. 
-                    // Let's just slice the `days` array.
-
-                    // Actually, strict 7-day columns logic:
-                    // The first column might not be full if we just slice.
-                    // Correct approach: Calculate start day of the week (Sunday) for the very first date.
-
                     return (
                         <div key={weekIndex} className="flex flex-col gap-1 flex-shrink-0">
                             {Array.from({ length: 7 }).map((_, dayIndex) => {
@@ -53,7 +45,7 @@ const ReadingCalendar: React.FC<Props> = ({ activityData }) => {
 
                                 const day = days[overallIndex];
                                 const dateKey = formatDate(day);
-                                const count = activityData[dateKey] || 0;
+                                const count = (activityData || {})[dateKey] || 0; // Double safety
 
                                 return (
                                     <div
