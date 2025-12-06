@@ -1300,15 +1300,27 @@ const App: React.FC = () => {
     }
   };
 
+  const handleUpdateProfile = async (updates: { nickname: string }) => {
+    if (!session?.user) return;
+    try {
+      await dbService.updateUserProfile(session.user.id, updates);
+      setUserName(updates.nickname); // Update local state
+    } catch (error) {
+      console.error("Failed to update profile", error);
+      throw error; // Re-throw for modal to handle
+    }
+  };
+
   const handleDeleteAccount = async () => {
     if (!session?.user) return;
     try {
       await dbService.deleteUserProfile(session.user.id);
-      await handleLogout();
-      alert('계정이 초기화되었습니다.');
+      await supabase.auth.signOut();
+      setAppState('LOGIN');
+      window.location.reload();
     } catch (error) {
-      console.error("Account deletion failed:", error);
-      alert('계정 삭제 중 오류가 발생했습니다.');
+      console.error("Failed to delete account", error);
+      alert("계정 삭제에 실패했습니다.");
     }
   };
 
@@ -1409,9 +1421,12 @@ const App: React.FC = () => {
           userName={userName}
           userProfile={userProfile}
           completedBooksCount={completedBooks.length}
-          messageCount={messages.length}
+          messageCount={messageCount || (messages.length + (sessions.length * 10))}
           onLogout={handleLogout}
+          onDeleteAccount={handleDeleteAccount}
           onClose={() => setShowMyPage(false)}
+          readingActivity={readingActivity}
+          onUpdateProfile={handleUpdateProfile}
         />
       )}
 

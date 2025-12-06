@@ -3,22 +3,34 @@ import { Book, Message, UserProfile, CommunityPost, ChatSession } from '../types
 
 export const dbService = {
     // --- Profiles ---
-    async getUserProfile(userId: string): Promise<UserProfile | null> {
+    async getUserProfile(userId: string) {
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .maybeSingle();
+            .single(); // Changed from maybeSingle()
 
-        if (error) return null;
-        if (!data) return null;
-        return {
-            id: data.id,
-            nickname: data.nickname,
-            email: data.email,
-            avatarUrl: data.avatar_url,
-            preferredLibCodes: data.preferred_lib_codes
-        };
+        if (error) {
+            console.error('Error fetching profile:', error);
+            // If fetching failed, try creating one? No, existing logic handles it elsewhere
+            return null;
+        }
+        return data;
+    },
+
+    async updateUserProfile(userId: string, updates: { nickname?: string; location?: string; age_group?: string; avatar_url?: string }) {
+        const { data, error } = await supabase
+            .from('profiles')
+            .update(updates)
+            .eq('id', userId)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error updating profile:', error);
+            throw error;
+        }
+        return data;
     },
 
     // --- Books (Cache) ---
@@ -74,9 +86,9 @@ export const dbService = {
                 // It has book_id.
             })
             .select(`
-        *,
-        book:books(*)
-      `)
+    *,
+    book: books(*)
+        `)
             .single();
 
         if (error) throw error;
@@ -88,8 +100,8 @@ export const dbService = {
             .from('user_books')
             .select(`
         *,
-        book:books(*)
-      `)
+        book: books(*)
+            `)
             .eq('user_id', userId)
             .order('start_date', { ascending: false });
 
@@ -112,22 +124,6 @@ export const dbService = {
             .from('user_books')
             .update(dbUpdates)
             .eq('id', userBookId);
-
-        if (error) throw error;
-    },
-
-    async updateUserProfile(userId: string, updates: Partial<UserProfile>) {
-        const dbUpdates: any = {
-            id: userId, // Required for upsert
-        };
-        if (updates.nickname) dbUpdates.nickname = updates.nickname;
-        if (updates.preferredLibCodes) dbUpdates.preferred_lib_codes = updates.preferredLibCodes;
-        if (updates.email) dbUpdates.email = updates.email; // Optional if passed
-
-        const { error } = await supabase
-            .from('profiles')
-            .upsert(dbUpdates)
-            .select();
 
         if (error) throw error;
     },
@@ -242,11 +238,11 @@ export const dbService = {
         const { data, error } = await supabase
             .from('chat_sessions')
             .select(`
-                *,
-                user_book:user_books(
-                    book:books(title)
-                )
-            `)
+            *,
+            user_book: user_books(
+                book: books(title)
+            )
+                `)
             .eq('user_id', userId)
             .is('expires_at', null)
             .order('created_at', { ascending: false });
@@ -300,14 +296,14 @@ export const dbService = {
         const { data, error } = await supabase
             .from('user_books')
             .select(`
-        id,
-        review,
-        rating,
-        created_at,
-        user:profiles(id, nickname, avatar_url),
-        book:books(title, author, cover_url),
-        likes:post_likes(count)
-      `)
+id,
+    review,
+    rating,
+    created_at,
+    user: profiles(id, nickname, avatar_url),
+        book: books(title, author, cover_url),
+            likes: post_likes(count)
+                `)
             .eq('is_shared', true)
             .order('created_at', { ascending: false });
 
@@ -380,11 +376,11 @@ export const dbService = {
         const { data, error } = await supabase
             .from('messages')
             .select(`
-        created_at,
-        sessions!inner (
-          user_id
-        )
-      `)
+created_at,
+    sessions!inner(
+        user_id
+    )
+        `)
             .eq('sessions.user_id', userId);
 
         if (error) {
