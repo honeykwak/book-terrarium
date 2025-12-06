@@ -531,15 +531,12 @@ const SidebarContent: React.FC<{
     </div>
 
     {/* Scrollable Session List */}
-    <div className="flex-1 overflow-y-auto px-3 custom-scrollbar">
-      <div className="text-xs font-bold text-sage-400 uppercase tracking-wider mb-2 px-2 mt-2">
-        <HistoryIcon className="w-3 h-3 inline mr-1" />
-        대화 기록
-      </div>
-
-      <div className="space-y-1">
+    <div className="flex-1 overflow-y-auto px-1 custom-scrollbar">
+      <div className="space-y-1 mt-2">
         {sessions.map(session => {
           const isActive = session.id === currentSessionId;
+          const displayTitle = session.bookTitle || '소원과의 대화';
+
           return (
             <button
               key={session.id}
@@ -550,19 +547,16 @@ const SidebarContent: React.FC<{
                 }`}
             >
               <div className="flex items-start justify-between">
-                <div className="flex flex-col gap-0.5 max-w-[85%]">
-                  {/* Title / Preview */}
-                  <span className={`text-sm font-medium truncate ${isActive ? 'text-sage-900' : 'text-sage-600'}`}>
-                    {session.dateTitle || new Date(session.createdAt).toLocaleDateString()} 의 대화
+                <div className="flex flex-col gap-0.5 w-full">
+                  {/* Title Priority: Book Name > Default */}
+                  <span className={`text-sm font-bold truncate ${isActive ? 'text-sage-900' : 'text-sage-700'}`}>
+                    {displayTitle}
                   </span>
 
-                  {/* Book Badge if linked */}
-                  {session.bookTitle && (
-                    <div className="inline-flex items-center gap-1.5 mt-1.5 px-2 py-0.5 bg-sage-100 text-sage-600 rounded-md text-[10px] w-fit">
-                      <span className="w-1.5 h-1.5 rounded-full bg-sage-400"></span>
-                      <span className="font-medium truncate max-w-[120px]">{session.bookTitle}</span>
-                    </div>
-                  )}
+                  {/* Date Subtitle */}
+                  <span className="text-[10px] text-sage-400 font-medium">
+                    {new Date(session.createdAt).toLocaleDateString()} {new Date(session.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
               </div>
 
