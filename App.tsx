@@ -514,9 +514,9 @@ const SidebarContent: React.FC<{
   setShowMyPage: (v: boolean) => void;
   // setCurrentBook no longer needed here as selection handles it
 }> = ({ currentBook, sessions, currentSessionId, userName, handleNewChat, handleSelectSession, handleRequestFinish, setShowMyPage }) => (
-  <div className="flex flex-col h-full bg-sage-50/50">
+  <div className="flex flex-col h-full">
     {/* Header */}
-    <div className="px-5 pt-8 pb-4">
+    <div className="px-6 pt-6 pb-4">
       <div className="flex items-center gap-3 mb-6">
         <span className="font-serif font-bold text-2xl text-sage-900 tracking-tight">소원</span>
       </div>
@@ -1205,7 +1205,7 @@ const App: React.FC = () => {
       )}
 
       {/* Sidebar (Desktop) */}
-      <aside className={`hidden md:flex flex-col w-72 bg-sage-50 border-r border-sage-200 h-full p-6 transition-all duration-500`}>
+      <aside className={`hidden md:flex flex-col w-72 bg-sage-50 border-r border-sage-200 h-full transition-all duration-500`}>
         <SidebarContent
           currentBook={currentBook}
           sessions={sessions}
@@ -1225,7 +1225,7 @@ const App: React.FC = () => {
             className="fixed inset-0 bg-sage-900/20 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <aside className="relative w-72 h-full bg-sage-50 p-6 flex flex-col shadow-2xl animate-slide-in-left">
+          <aside className="relative w-72 h-full bg-sage-50 flex flex-col shadow-2xl animate-slide-in-left">
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="absolute top-4 right-4 p-2 text-sage-400 hover:text-sage-600"
