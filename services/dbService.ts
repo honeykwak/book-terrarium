@@ -243,6 +243,7 @@ export const dbService = {
                 )
             `)
             .eq('user_id', userId)
+            .is('expires_at', null)
             .order('created_at', { ascending: false });
 
         if (error) return [];
