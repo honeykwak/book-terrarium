@@ -131,6 +131,15 @@ export const dbService = {
         if (error) throw error;
     },
 
+    async deleteUserProfile(userId: string) {
+        const { error } = await supabase
+            .from('profiles')
+            .delete()
+            .eq('id', userId);
+
+        if (error) throw error;
+    },
+
     // --- Chat Sessions ---
     async createSession(userId: string): Promise<ChatSession> {
         const { data, error } = await supabase

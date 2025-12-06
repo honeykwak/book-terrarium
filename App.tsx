@@ -93,8 +93,9 @@ const MyPageModal: React.FC<{
   completedBooksCount: number;
   messageCount: number;
   onLogout: () => void;
+  onDeleteAccount: () => void; // New Prop
   onClose: () => void;
-}> = ({ userName, userProfile, completedBooksCount, messageCount, onLogout, onClose }) => (
+}> = ({ userName, userProfile, completedBooksCount, messageCount, onLogout, onDeleteAccount, onClose }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-sage-900/40 backdrop-blur-sm">
     <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-fade-in-up">
       {/* Header */}
@@ -119,19 +120,31 @@ const MyPageModal: React.FC<{
       </div>
 
       {/* Footer Actions */}
-      <div className="p-4 bg-sage-50 flex gap-2">
+      <div className="p-4 bg-sage-50 flex flex-col gap-2">
+        <div className="flex gap-2 w-full">
+          <button
+            onClick={onLogout}
+            className="flex-1 py-3 text-sage-600 hover:bg-sage-100 rounded-xl transition-colors text-sm font-medium flex items-center justify-center gap-2"
+          >
+            <LogOutIcon className="w-4 h-4" />
+            로그아웃
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 py-3 bg-sage-700 text-white hover:bg-sage-800 rounded-xl transition-colors text-sm font-medium"
+          >
+            닫기
+          </button>
+        </div>
         <button
-          onClick={onLogout}
-          className="flex-1 py-3 text-sage-600 hover:bg-sage-100 rounded-xl transition-colors text-sm font-medium flex items-center justify-center gap-2"
+          onClick={() => {
+            if (window.confirm('정말 계정을 초기화하시겠습니까? 모든 데이터가 삭제됩니다.')) {
+              onDeleteAccount();
+            }
+          }}
+          className="w-full py-2 text-xs text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
         >
-          <LogOutIcon className="w-4 h-4" />
-          로그아웃
-        </button>
-        <button
-          onClick={onClose}
-          className="flex-1 py-3 bg-sage-700 text-white hover:bg-sage-800 rounded-xl transition-colors text-sm font-medium"
-        >
-          닫기
+          계정 초기화 (회원 탈퇴)
         </button>
       </div>
     </div>
@@ -1085,20 +1098,45 @@ const App: React.FC = () => {
     }));
   };
 
+  const handleDeleteAccount = async () => {
+    if (!session?.user) return;
+    try {
+      await dbService.deleteUserProfile(session.user.id);
+      await handleLogout();
+      alert('계정이 초기화되었습니다.');
+    } catch (error) {
+      console.error("Account deletion failed:", error);
+      alert('계정 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
   // --- Render ---
 
   if (appState === 'LOGIN') {
     return <LoginScreen onLogin={handleLogin} />;
   }
-  {
-    appState === 'ONBOARDING' && (
+  if (appState === 'ONBOARDING') {
+    return (
       <Onboarding
         initialName={session?.user?.user_metadata?.full_name || ''}
         onComplete={handleOnboardingComplete}
         onLogout={handleLogout}
       />
-    )
+    );
   }
+
+  // Helper render for MyPageModal
+  const renderMyPage = () => (
+    <MyPageModal
+      userName={userName}
+      userProfile={userProfile}
+      completedBooksCount={completedBooks.length}
+      messageCount={messageCount}
+      onLogout={handleLogout}
+      onDeleteAccount={handleDeleteAccount}
+      onClose={() => setShowMyPage(false)}
+    />
+  );
 
   return (
     <div className="flex h-screen bg-sage-100 font-sans overflow-hidden text-sage-900">
