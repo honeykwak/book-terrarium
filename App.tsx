@@ -671,6 +671,8 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [loadingText, setLoadingText] = useState('');
+  const [toastMessage, setToastMessage] = useState<string | null>(null); // New Toast State
+
   const [dbError, setDbError] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<ModelType>(ModelType.FLASH);
 
@@ -875,7 +877,11 @@ const App: React.FC = () => {
     if (!currentBook || !currentSession) return; // Ensure session exists
 
     setShowFinishConfirm(false);
-    setIsLoading(true);
+    // REMOVED blocking loading state
+    // setIsLoading(true);
+    // setLoadingText('AI가 독서 여정을 분석 중입니다...\n잠시만 기다려주세요.');
+
+    setToastMessage('AI가 독서 여정을 분석 중입니다...'); // Show Toast
 
     // Mock API call simulation
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -885,7 +891,6 @@ const App: React.FC = () => {
       // AI Report Generation
       let report: ReportAnalytics | undefined;
       try {
-        setLoadingText('AI가 독서 여정을 분석 중입니다...\n잠시만 기다려주세요.');
         report = await generateReport(messages);
       } catch (e) {
         console.error("AI Report Generation Failed, using fallback", e);
@@ -930,13 +935,17 @@ const App: React.FC = () => {
       setCurrentSession(null);
       setMessageCount(0);
       resetChat();
-      setIsLoading(false);
+      resetChat();
+      setIsLoading(false); // Ensure loading is off if it was on for other reasons
       setLoadingText('');
+      setToastMessage(null); // Clear toast
       setShowLibrary(true);
     } catch (error) {
       console.error('Error finishing book:', error);
       setIsLoading(false);
       setLoadingText('');
+      setToastMessage(null); // Clear toast
+      alert('분석 중 오류가 발생했습니다.'); // Fallback alert
     }
   };
 
@@ -1508,6 +1517,16 @@ const App: React.FC = () => {
             <div className="flex flex-col items-center">
               <SpinnerIcon className="w-10 h-10 text-sage-600 animate-spin mb-4" />
               <p className="text-sage-800 font-bold text-lg whitespace-pre-wrap text-center">{loadingText}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Toast Notification */}
+        {toastMessage && (
+          <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-up">
+            <div className="bg-sage-800/90 backdrop-blur-md text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-3">
+              <SpinnerIcon className="w-4 h-4 text-sage-200 animate-spin" />
+              <span className="text-sm font-medium">{toastMessage}</span>
             </div>
           </div>
         )}
