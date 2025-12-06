@@ -882,10 +882,16 @@ const App: React.FC = () => {
 
     // Ensure Session Exists
     let activeSessionId = currentSession?.id;
+
     if (!activeSessionId && userProfile) {
-      const newSession = await dbService.createSession(userProfile.id);
-      setCurrentSession(newSession);
-      activeSessionId = newSession.id;
+      try {
+        const newSession = await dbService.createSession(userProfile.id);
+        setCurrentSession(newSession);
+        activeSessionId = newSession.id;
+      } catch (e) {
+        console.error("Failed to create session:", e);
+        return;
+      }
     }
 
     if (!activeSessionId) {
