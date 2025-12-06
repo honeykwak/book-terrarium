@@ -1518,7 +1518,7 @@ const App: React.FC = () => {
         )}
 
         {/* Loading Overlay with Text */}
-        {isLoading && loadingText && (
+        {isLoading && loadingText && !isStreaming && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm animate-fade-in">
             <div className="flex flex-col items-center">
               <SpinnerIcon className="w-10 h-10 text-sage-600 animate-spin mb-4" />
