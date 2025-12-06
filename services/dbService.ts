@@ -167,9 +167,14 @@ export const dbService = {
     },
 
     async createSession(userId: string, userBookId?: string): Promise<ChatSession> {
+        const payload: any = { user_id: userId };
+        if (userBookId) {
+            payload.user_book_id = userBookId;
+        }
+
         const { data, error } = await supabase
             .from('chat_sessions')
-            .insert({ user_id: userId })
+            .insert(payload)
             .select()
             .single();
 
