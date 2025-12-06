@@ -295,7 +295,8 @@ export const dbService = {
     },
 
     // --- Community ---
-    async getCommunityPosts(): Promise<CommunityPost[]> {
+    async getCommunityPosts(currentUserId?: string): Promise<CommunityPost[]> {
+        // 1. Get Posts
         const { data, error } = await supabase
             .from('user_books')
             .select(`
@@ -311,6 +312,19 @@ export const dbService = {
             .order('created_at', { ascending: false });
 
         if (error) return [];
+
+        // 2. Get My Likes (if logged in)
+        let myLikedIds = new Set<string>();
+        if (currentUserId) {
+            const { data: myLikes } = await supabase
+                .from('post_likes')
+                .select('user_book_id')
+                .eq('user_id', currentUserId);
+
+            if (myLikes) {
+                myLikes.forEach(l => myLikedIds.add(l.user_book_id));
+            }
+        }
 
         return data.map((item: any) => ({
             id: item.id,
@@ -328,9 +342,38 @@ export const dbService = {
                 coverUrl: item.book.cover_url
             } as Book,
             likes: item.likes?.[0]?.count || 0,
-            isLiked: false,
+            isLiked: myLikedIds.has(item.id),
             createdAt: new Date(item.created_at)
         }));
+    },
+
+    async toggleLike(userBookId: string, currentUserId: string): Promise<boolean> {
+        // Check if already liked
+        const { data } = await supabase
+            .from('post_likes')
+            .select('user_book_id')
+            .eq('user_book_id', userBookId)
+            .eq('user_id', currentUserId)
+            .maybeSingle();
+
+        if (data) {
+            // Un-like
+            await supabase
+                .from('post_likes')
+                .delete()
+                .eq('user_book_id', userBookId)
+                .eq('user_id', currentUserId);
+            return false;
+        } else {
+            // Like
+            await supabase
+                .from('post_likes')
+                .insert({
+                    user_book_id: userBookId,
+                    user_id: currentUserId
+                });
+            return true;
+        }
     },
 
     // Helper

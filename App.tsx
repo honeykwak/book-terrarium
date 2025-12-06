@@ -22,24 +22,8 @@ type LibraryTab = 'REPORT' | 'REFLECTION' | 'COMMUNITY' | 'CHAT';
 
 // --- MOCK DATA ---
 
-const MOCK_COMMUNITY_POSTS: CommunityPost[] = [
-  {
-    id: 'post-1',
-    user: { id: 'u1', nickname: 'BookLover', email: '' },
-    book: { id: 'b1', title: '데미안', author: '헤르만 헤세', coverColor: '#4A5A4A' },
-    likes: 12,
-    isLiked: false,
-    createdAt: new Date(Date.now() - 86400000)
-  },
-  {
-    id: 'post-2',
-    user: { id: 'u2', nickname: 'MidnightReader', email: '' },
-    book: { id: 'b2', title: '월든', author: '헨리 데이비드 소로', coverColor: '#8FA88F' },
-    likes: 8,
-    isLiked: true,
-    createdAt: new Date(Date.now() - 172800000)
-  }
-];
+// MOCK_COMMUNITY_POSTS removed
+
 
 const MOCK_COMPLETED_BOOKS: Book[] = [
   {
@@ -800,7 +784,19 @@ const App: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Initial greeting if current book exists (Test Mode) -> Migrated to handleBookSelect
+  // Initial greeting if current book exists (Test Mode) -> Migrated  // Fetch Community Posts
+  useEffect(() => {
+    if (libraryTab === 'COMMUNITY') {
+      const fetchPosts = async () => {
+        if (!session?.user) return;
+        const posts = await dbService.getCommunityPosts(session.user.id);
+        setCommunityPosts(posts);
+      };
+      fetchPosts();
+    }
+  }, [libraryTab, session]);
+
+  // Handle Book Selection
   // We remove the automatic effect to prevent weird loops, logic moved to book selection
 
   // Initial Data Fetching
@@ -1275,13 +1271,36 @@ const App: React.FC = () => {
     }
   };
 
-  const handleLikePost = (postId: string) => {
+  const handleLikePost = async (postId: string) => {
+    if (!session?.user) return;
+
+    // Optimistic Update
+    const targetPost = communityPosts.find(p => p.id === postId);
+    if (!targetPost) return;
+
+    const newLikedState = !targetPost.isLiked;
+    const newLikesCount = newLikedState ? targetPost.likes + 1 : targetPost.likes - 1;
+
     setCommunityPosts(prev => prev.map(p => {
       if (p.id === postId) {
-        return { ...p, likes: p.isLiked ? p.likes - 1 : p.likes + 1, isLiked: !p.isLiked };
+        return { ...p, likes: newLikesCount, isLiked: newLikedState };
       }
       return p;
     }));
+
+    // DB Update
+    try {
+      await dbService.toggleLike(postId, session.user.id);
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+      // Revert on error
+      setCommunityPosts(prev => prev.map(p => {
+        if (p.id === postId) {
+          return { ...p, likes: targetPost.likes, isLiked: targetPost.isLiked };
+        }
+        return p;
+      }));
+    }
   };
 
   const handleDeleteAccount = async () => {
