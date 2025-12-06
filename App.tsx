@@ -1070,7 +1070,8 @@ const App: React.FC = () => {
   };
 
   const handleSend = async (text: string = inputValue, isHiddenPrompt: boolean = false) => {
-    const activeSessionId = currentSession?.id;
+    let activeSessionId = currentSession?.id;
+
     if ((!text.trim() && !isHiddenPrompt) || isLoading) return;
 
     // Reset AbortController
@@ -1089,6 +1090,21 @@ const App: React.FC = () => {
       setMessages(prev => [...prev, userMessage]);
       setInputValue('');
       setMessageCount(prev => prev + 1);
+    }
+
+    // Lazy Session Creation: If no session, create one now
+    if (!activeSessionId && session?.user && !isHiddenPrompt) {
+      try {
+        const newSession = await dbService.createSession(session.user.id);
+        activeSessionId = newSession.id;
+        setCurrentSession(newSession);
+
+        // Refresh sidebar list
+        const updatedSessions = await dbService.getUserSessions(session.user.id);
+        setSessions(updatedSessions);
+      } catch (e) {
+        console.error("Failed to create lazy session:", e);
+      }
     }
 
     // Save User Message to DB
