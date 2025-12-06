@@ -292,7 +292,7 @@ const LibraryModal: React.FC<{
                     <button
                       key={tab.id}
                       onClick={() => setLibraryTab(tab.id as LibraryTab)}
-                      className={`flex - 1 pb - 3 text - sm font - bold transition - colors whitespace - nowrap px - 2 ${libraryTab === tab.id ? 'text-sage-700 border-b-2 border-sage-700' : 'text-sage-400 hover:text-sage-600'} `}
+                      className={`flex-1 pb-3 text-sm font-bold transition-colors whitespace-nowrap px-2 ${libraryTab === tab.id ? 'text-sage-700 border-b-2 border-sage-700' : 'text-sage-400 hover:text-sage-600'}`}
                     >
                       {tab.label}
                     </button>
@@ -407,8 +407,8 @@ const LibraryModal: React.FC<{
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-sage-100 h-[500px] overflow-y-auto custom-scrollbar animate-fade-in">
                       {viewingBook.chatHistory && viewingBook.chatHistory.length > 0 ? (
                         viewingBook.chatHistory.map(msg => (
-                          <div key={msg.id} className={`mb - 4 ${msg.role === Role.USER ? 'text-right' : 'text-left'} `}>
-                            <div className={`inline - block p - 3 rounded - lg text - sm max - w - [85 %] ${msg.role === Role.USER
+                          <div key={msg.id} className={`mb-4 ${msg.role === Role.USER ? 'text-right' : 'text-left'} `}>
+                            <div className={`inline-block p-3 rounded-lg text-sm max-w-[85%] ${msg.role === Role.USER
                               ? 'bg-sage-100 text-sage-800'
                               : 'bg-white border border-sage-100 text-sage-700'
                               } `}>
@@ -437,7 +437,7 @@ const LibraryModal: React.FC<{
                         </h4>
                         <button
                           onClick={() => handleToggleShare(viewingBook.id)}
-                          className={`flex items - center gap - 2 px - 3 py - 1 rounded - full text - xs font - bold transition - all ${viewingBook.isShared
+                          className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold transition-all ${viewingBook.isShared
                             ? 'bg-sage-600 text-white'
                             : 'bg-sage-100 text-sage-500'
                             } `}
@@ -500,7 +500,7 @@ const LibraryModal: React.FC<{
                               <div className="flex items-center gap-4 border-t border-sage-50 pt-3">
                                 <button
                                   onClick={() => handleLikePost(post.id)}
-                                  className={`flex items - center gap - 1 text - xs font - bold transition - colors ${post.isLiked ? 'text-red-400' : 'text-sage-400 hover:text-sage-600'} `}
+                                  className={`flex items-center gap-1 text-xs font-bold transition-colors ${post.isLiked ? 'text-red-400' : 'text-sage-400 hover:text-sage-600'} `}
                                 >
                                   <HeartIcon className="w-4 h-4" filled={post.isLiked} />
                                   {post.likes}
