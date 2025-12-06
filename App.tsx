@@ -12,7 +12,7 @@ import MarkdownRenderer from './components/MarkdownRenderer';
 import { EmotionLineGraph, FocusDonutChart, KeywordBarChart } from './components/ReportComponents';
 import {
   MenuIcon, ChevronDownIcon, LeafIcon, LibraryIcon,
-  PlusIcon, SparklesIcon, CheckCircleIcon, XIcon, UserIcon, LogOutIcon,
+  PlusIcon, SparklesIcon, CheckCircleIcon, XIcon, UserIcon, LogOutIcon, SpinnerIcon,
   HeartIcon, ShareIcon, LockIcon, EditIcon, HistoryIcon, BrainIcon, TargetIcon, TrendingUpIcon, TrashIcon
 } from './components/Icon';
 import { INITIAL_SUGGESTIONS, COVER_COLORS } from './constants';
