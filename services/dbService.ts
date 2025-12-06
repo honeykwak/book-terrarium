@@ -352,5 +352,15 @@ export const dbService = {
             report: data.report_content ? JSON.parse(data.report_content) : undefined,
             isShared: data.is_shared
         };
+    },
+
+    mapMessage(msg: any): Message {
+        return {
+            id: msg.id,
+            sessionId: msg.session_id,
+            role: msg.role,
+            content: msg.content,
+            timestamp: new Date(msg.created_at)
+        };
     }
 };
