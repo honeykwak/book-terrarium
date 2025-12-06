@@ -1,8 +1,8 @@
-import { GoogleGenAI, Chat } from "@google/genai";
+import { GoogleGenerativeAI, ChatSession } from "@google/generative-ai";
 import { SYSTEM_INSTRUCTION } from '../constants';
 import { Message, Role, ModelType } from '../types';
 
-let chatSession: Chat | null = null;
+let chatSession: ChatSession | null = null;
 let currentModel: string | null = null;
 
 const getClient = () => {
@@ -10,19 +10,23 @@ const getClient = () => {
   if (!apiKey) {
     throw new Error("API Key not found in environment variables");
   }
-  return new GoogleGenAI({ apiKey });
+  return new GoogleGenerativeAI(apiKey);
 };
 
 export const initializeChat = (modelId: ModelType = ModelType.FLASH) => {
-  const ai = getClient();
+  console.log("Initializing Gemini Chat with model:", modelId);
+  const genAI = getClient();
 
   // Re-initialize only if model changes or session doesn't exist
   if (!chatSession || currentModel !== modelId) {
-    chatSession = ai.chats.create({
+    const model = genAI.getGenerativeModel({
       model: modelId,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7, // Slightly higher for creativity in literature
+      systemInstruction: SYSTEM_INSTRUCTION
+    });
+
+    chatSession = model.startChat({
+      generationConfig: {
+        temperature: 0.7,
       },
     });
     currentModel = modelId;
@@ -47,14 +51,12 @@ export const sendMessageStream = async (
     // but the stateful chat object handles context. 
     // If we wanted to restore history from DB, we would add history params to create().
 
-    const resultStream = await chat.sendMessageStream({
-      message: text
-    });
+    const resultStream = await chat.sendMessageStream(text);
 
     let fullText = "";
 
-    for await (const chunk of resultStream) {
-      const chunkText = chunk.text;
+    for await (const chunk of resultStream.stream) {
+      const chunkText = chunk.text();
       if (chunkText) {
         fullText += chunkText;
         onChunk(fullText);

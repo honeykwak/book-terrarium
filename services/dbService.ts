@@ -8,9 +8,10 @@ export const dbService = {
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .single();
+            .maybeSingle();
 
         if (error) return null;
+        if (!data) return null;
         return {
             id: data.id,
             nickname: data.nickname,
