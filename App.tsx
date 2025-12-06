@@ -1075,8 +1075,14 @@ const App: React.FC = () => {
   if (appState === 'LOGIN') {
     return <LoginScreen onLogin={handleLogin} />;
   }
-  if (appState === 'ONBOARDING') {
-    return <Onboarding initialName={userName} onComplete={handleOnboardingComplete} />;
+  {
+    appState === 'ONBOARDING' && (
+      <Onboarding
+        initialName={session?.user?.user_metadata?.full_name || ''}
+        onComplete={handleOnboardingComplete}
+        onLogout={handleLogout}
+      />
+    )
   }
 
   return (

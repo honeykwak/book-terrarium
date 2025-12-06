@@ -4,6 +4,7 @@ import { KOREA_REGIONS } from '../constants';
 interface OnboardingProps {
   initialName: string;
   onComplete: (data: any) => void;
+  onLogout: () => void;
 }
 
 const STEPS = ['GUIDE', 'PROFILE', 'ALARM'];
@@ -247,7 +248,7 @@ const AlarmStep = ({ formData, setFormData }: { formData: any, setFormData: any 
   );
 };
 
-const Onboarding: React.FC<OnboardingProps> = ({ initialName, onComplete }) => {
+const Onboarding: React.FC<OnboardingProps> = ({ initialName, onComplete, onLogout }) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [formData, setFormData] = useState({
     name: initialName,
@@ -271,7 +272,14 @@ const Onboarding: React.FC<OnboardingProps> = ({ initialName, onComplete }) => {
   const currentStep = STEPS[stepIndex];
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#E8F0E8] p-4">
+    <div className="flex items-center justify-center min-h-screen bg-[#E8F0E8] p-4 relative">
+      <button
+        onClick={onLogout}
+        className="absolute top-4 right-4 text-xs text-sage-500 hover:text-sage-700 underline z-10"
+      >
+        로그아웃 (처음으로)
+      </button>
+
       <div className="w-full max-w-lg">
         {/* Steps Indicator */}
         <div className="flex justify-center gap-2 mb-8">
