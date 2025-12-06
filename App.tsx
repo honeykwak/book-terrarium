@@ -816,6 +816,15 @@ const App: React.FC = () => {
   };
 
   const handleNewChat = () => {
+    // Check if there is already a session with no book assigned
+    const existingBooklessSession = sessions.find(s => !s.userBookId);
+
+    if (existingBooklessSession) {
+      handleSelectSession(existingBooklessSession);
+      setIsMobileMenuOpen(false);
+      return;
+    }
+
     setMessages([]);
     setMessageCount(0);
     setCurrentBook(null);
