@@ -684,14 +684,8 @@ const App: React.FC = () => {
   // Reading Activity
   const [readingActivity, setReadingActivity] = useState<Record<string, number>>({});
 
-  // Fetch Reading Activity on MyPage Open
-  useEffect(() => {
-    if (showMyPage && session?.user) {
-      dbService.getReadingActivity(session.user.id)
-        .then(setReadingActivity)
-        .catch(console.error);
-    }
-  }, [showMyPage, session]);
+
+  // (Effect moved below)
 
   // Book Therapy Features
   const [messageCount, setMessageCount] = useState(0);
@@ -710,6 +704,15 @@ const App: React.FC = () => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Fetch Reading Activity on MyPage Open
+  useEffect(() => {
+    if (showMyPage && session?.user) {
+      dbService.getReadingActivity(session.user.id)
+        .then(setReadingActivity)
+        .catch(console.error);
+    }
+  }, [showMyPage, session]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
