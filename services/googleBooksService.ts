@@ -1,5 +1,6 @@
 import { Book } from '../types';
 import { COVER_COLORS } from '../constants';
+import { fetchCoverFromNaroo } from './narooService';
 
 const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
 
@@ -10,19 +11,30 @@ export const searchBooks = async (query: string): Promise<Book[]> => {
 
         if (!data.items) return [];
 
-        return data.items.map((item: any) => {
+        return await Promise.all(data.items.map(async (item: any) => {
             const info = item.volumeInfo;
             const randomColor = COVER_COLORS[Math.floor(Math.random() * COVER_COLORS.length)];
 
             // 1. Try Google Books Covers
             let coverUrl = info.imageLinks?.thumbnail || info.imageLinks?.smallThumbnail;
 
-            // 2. Fallback to Open Library if Google fails but ISBN exists
-            if (!coverUrl && info.industryIdentifiers) {
-                const isbn13 = info.industryIdentifiers.find((id: any) => id.type === 'ISBN_13')?.identifier;
-                const isbn10 = info.industryIdentifiers.find((id: any) => id.type === 'ISBN_10')?.identifier;
-                const isbn = isbn13 || isbn10;
-                if (isbn) {
+            // Prepare ISBN
+            const isbn13 = info.industryIdentifiers?.find((id: any) => id.type === 'ISBN_13')?.identifier;
+            const isbn10 = info.industryIdentifiers?.find((id: any) => id.type === 'ISBN_10')?.identifier;
+            const isbn = isbn13 || isbn10;
+
+            // 2. Fallback Chain
+            if (!coverUrl && isbn) {
+                // 2a. Try Information Naroo API (Korean Library DB)
+                try {
+                    const narooCover = await fetchCoverFromNaroo(isbn);
+                    if (narooCover) coverUrl = narooCover;
+                } catch (e) {
+                    console.warn("Naroo fetch failed", e);
+                }
+
+                // 2b. Fallback to Open Library if Naroo failed
+                if (!coverUrl) {
                     coverUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`;
                 }
             }
@@ -39,9 +51,9 @@ export const searchBooks = async (query: string): Promise<Book[]> => {
                 coverColor: randomColor,
                 coverUrl: coverUrl,
                 startDate: new Date(),
-                isbn: info.industryIdentifiers?.find((id: any) => id.type === 'ISBN_13')?.identifier
+                isbn: isbn
             };
-        });
+        }));
     } catch (error) {
         console.error('Error fetching books:', error);
         return [];
