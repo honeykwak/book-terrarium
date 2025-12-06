@@ -53,9 +53,13 @@ const MOCK_COMPLETED_BOOKS: Book[] = [
     review: '내면의 목소리를 찾는 여정이 인상 깊었습니다.',
     isShared: true,
     report: {
+      summary: '내면의 목소리를 찾아가는 깊은 여정이었습니다.',
       emotionAnalysis: { primary: '성찰', intensity: 8, keywords: ['자아', '성장'] },
       readingHabits: { sessionCount: 5, avgDurationMinutes: 45 },
-      growthAreas: ['내면 탐구']
+      growthAreas: ['내면 탐구'],
+      actionItems: ['매일 10분 명상하기', '감정 일기 쓰기', '혼자만의 산책 즐기기'],
+      emotionTrajectory: [{ progress: 0, score: 5 }, { progress: 50, score: 3 }, { progress: 100, score: 8 }],
+      focusAreas: [{ label: '자아', percentage: 40, color: '#4A5A4A' }, { label: '성장', percentage: 30, color: '#8FA88F' }, { label: '고독', percentage: 30, color: '#5C7C8A' }]
     }
   },
   {
@@ -69,9 +73,13 @@ const MOCK_COMPLETED_BOOKS: Book[] = [
     review: '어른이 되어 다시 읽으니 새로운 느낌이네요.',
     isShared: false,
     report: {
+      summary: '순수한 동심을 다시 만나는 따뜻한 시간이었습니다.',
       emotionAnalysis: { primary: '순수', intensity: 9, keywords: ['동심', '관계'] },
       readingHabits: { sessionCount: 3, avgDurationMinutes: 30 },
-      growthAreas: ['관계의 의미']
+      growthAreas: ['관계의 의미'],
+      actionItems: ['소중한 사람에게 안부 묻기', '밤하늘 별 보기', '반려 식물 돌보기'],
+      emotionTrajectory: [{ progress: 0, score: 7 }, { progress: 50, score: 9 }, { progress: 100, score: 8 }],
+      focusAreas: [{ label: '순수', percentage: 50, color: '#FCD34D' }, { label: '관계', percentage: 30, color: '#F87171' }, { label: '이별', percentage: 20, color: '#9CA3AF' }]
     }
   }
 ];
