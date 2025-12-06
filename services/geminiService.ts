@@ -124,23 +124,37 @@ export const generateReport = async (messages: Message[]): Promise<any> => {
 
     const prompt = `
       Analyze the following conversation history between a user and an AI book reading companion.
-      Generate a "Completion Report" in valid JSON format.
+      Generate a comprehensive "Completion Report" in valid JSON format.
       
       The JSON object must exactly match this structure:
       {
+        "summary": "A short, poetic one-line summary of the user's reading journey (Korean)",
         "emotionAnalysis": {
           "primary": "Primary emotion felt by user (string, e.g., 'Calm', 'Excited')",
           "intensity": 8, // Integer 1-10
-          "keywords": ["keyword1", "keyword2", "keyword3"] // string array
+          "keywords": ["keyword1", "keyword2", "keyword3"] // string array (Korean)
         },
         "readingHabits": {
-          "sessionCount": ${messages.length}, // Auto-filled hint
-          "avgDurationMinutes": 0 // Estimate based on timestamps if possible, otherwise 0
+          "sessionCount": ${messages.length}, 
+          "avgDurationMinutes": 15
         },
-        "growthAreas": ["area1", "area2"] // string array, areas where user showed insight or growth
+        "growthAreas": ["area1", "area2"], // string array (Korean)
+        "actionItems": ["action1", "action2", "action3"], // 3 specific, actionable suggestions for the user (Korean)
+        "emotionTrajectory": [
+          {"progress": 0, "score": 5},
+          {"progress": 25, "score": 3},
+          {"progress": 50, "score": 7},
+          {"progress": 75, "score": 6},
+          {"progress": 100, "score": 8}
+        ], // Simulate an emotional arc (score 1-10) based on the conversation flow. 5 points min.
+        "focusAreas": [
+          {"label": "Theme A", "percentage": 40, "color": "#8FA88F"},
+          {"label": "Theme B", "percentage": 30, "color": "#5C7C8A"},
+          {"label": "Theme C", "percentage": 30, "color": "#E5D0A1"}
+        ] // Top 3 themes discussed. Total percentage should be 100.
       }
 
-      For 'readingHabits.avgDurationMinutes', estimate roughly or set to 15 if unknown.
+      CRITICAL: Return ONLY the JSON object. No markdown formatting.
       Translate all string values to Korean (한국어).
 
       Conversation:
@@ -156,9 +170,13 @@ export const generateReport = async (messages: Message[]): Promise<any> => {
     console.error("Error generating report:", error);
     // Fallback if AI fails
     return {
+      summary: '분석을 완료하지 못했습니다.',
       emotionAnalysis: { primary: '알 수 없음', intensity: 0, keywords: [] },
       readingHabits: { sessionCount: 0, avgDurationMinutes: 0 },
-      growthAreas: ['분석에 실패했습니다.']
+      growthAreas: ['분석 정보가 부족합니다.'],
+      actionItems: ['잠시 후 다시 시도해주세요.'],
+      emotionTrajectory: [],
+      focusAreas: []
     };
   }
 };
