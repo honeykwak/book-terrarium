@@ -171,6 +171,15 @@ export const dbService = {
         if (error) throw error;
     },
 
+    async deleteSession(sessionId: string) {
+        const { error } = await supabase
+            .from('chat_sessions')
+            .delete()
+            .eq('id', sessionId);
+
+        if (error) throw error;
+    },
+
     async getSessionByBookId(bookId: string): Promise<ChatSession | null> {
         const { data, error } = await supabase
             .from('chat_sessions')
