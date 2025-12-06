@@ -182,6 +182,38 @@ const FinishConfirmModal: React.FC<{
   </div>
 );
 
+const DeleteConfirmModal: React.FC<{
+  onConfirm: () => void;
+  onClose: () => void;
+}> = ({ onConfirm, onClose }) => (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-sage-900/40 backdrop-blur-sm">
+    <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 animate-fade-in-up text-center">
+      <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
+        <TrashIcon className="w-8 h-8" />
+      </div>
+      <h3 className="text-xl font-serif font-bold text-sage-900 mb-2">대화 기록 삭제</h3>
+      <p className="text-sm text-sage-600 mb-6 leading-relaxed">
+        삭제된 대화는 복구할 수 없습니다.<br />
+        정말 삭제하시겠습니까?
+      </p>
+      <div className="flex gap-2">
+        <button
+          onClick={onClose}
+          className="flex-1 py-3 bg-sage-50 text-sage-600 hover:bg-sage-100 rounded-xl font-medium transition-colors"
+        >
+          취소
+        </button>
+        <button
+          onClick={onConfirm}
+          className="flex-1 py-3 bg-red-500 text-white hover:bg-red-600 rounded-xl font-medium transition-colors"
+        >
+          삭제하기
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
 const LibraryModal: React.FC<{
   onClose: () => void;
   completedBooks: Book[];
@@ -570,9 +602,7 @@ const SidebarContent: React.FC<{
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (confirm('이 대화 기록을 삭제하시겠습니까?')) {
-                    handleDeleteSession(session.id);
-                  }
+                  handleDeleteSession(session.id);
                 }}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-sage-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10"
                 title="대화 삭제"
@@ -1178,22 +1208,34 @@ const App: React.FC = () => {
     />
   );
 
-  const handleDeleteSession = async (sessionId: string) => {
+  // Delete Confirmation State
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+
+  const handleDeleteSession = (sessionId: string) => {
+    setSessionToDelete(sessionId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteSession = async () => {
+    if (!sessionToDelete) return;
     try {
-      await dbService.deleteSession(sessionId);
+      await dbService.deleteSession(sessionToDelete);
 
       // Update local state
-      const updatedSessions = sessions.filter(s => s.id !== sessionId);
+      const updatedSessions = sessions.filter(s => s.id !== sessionToDelete);
       setSessions(updatedSessions);
 
       // If deleted active session, reset view
-      if (currentSession?.id === sessionId) {
+      if (currentSession?.id === sessionToDelete) {
         if (updatedSessions.length > 0) {
           handleSelectSession(updatedSessions[0]);
         } else {
           handleNewChat();
         }
       }
+      setShowDeleteConfirm(false);
+      setSessionToDelete(null);
     } catch (e) {
       console.error("Failed to delete session:", e);
       setDbError("대화 삭제 중 오류가 발생했습니다.");
@@ -1204,6 +1246,12 @@ const App: React.FC = () => {
     <div className="flex h-screen bg-sage-100 font-sans overflow-hidden text-sage-900">
 
       {/* Modals */}
+      {showDeleteConfirm && (
+        <DeleteConfirmModal
+          onConfirm={confirmDeleteSession}
+          onClose={() => { setShowDeleteConfirm(false); setSessionToDelete(null); }}
+        />
+      )}
       {showFinishConfirm && (
         <FinishConfirmModal
           onConfirm={handleConfirmFinish}
