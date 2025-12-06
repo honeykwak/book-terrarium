@@ -142,7 +142,31 @@ export const dbService = {
     },
 
     // --- Chat Sessions ---
-    async createSession(userId: string): Promise<ChatSession> {
+    async getBookChatHistory(userBookId: string): Promise<Message[]> {
+        // 1. Get all sessions for this book
+        const { data: sessions, error: sessionError } = await supabase
+            .from('chat_sessions')
+            .select('id')
+            .eq('user_book_id', userBookId);
+
+        if (sessionError) throw sessionError;
+        if (!sessions || sessions.length === 0) return [];
+
+        const sessionIds = sessions.map(s => s.id);
+
+        // 2. Get all messages for these sessions
+        const { data: messages, error: msgError } = await supabase
+            .from('messages')
+            .select('*')
+            .in('session_id', sessionIds)
+            .order('created_at', { ascending: true });
+
+        if (msgError) throw msgError;
+
+        return messages.map(this.mapMessage);
+    },
+
+    async createSession(userId: string, userBookId?: string): Promise<ChatSession> {
         const { data, error } = await supabase
             .from('chat_sessions')
             .insert({ user_id: userId })
