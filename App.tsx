@@ -518,9 +518,6 @@ const SidebarContent: React.FC<{
     {/* Header */}
     <div className="px-5 pt-8 pb-4">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-8 h-8 rounded-lg bg-sage-800 flex items-center justify-center">
-          <span className="font-serif text-white font-bold text-lg">S</span>
-        </div>
         <span className="font-serif font-bold text-2xl text-sage-900 tracking-tight">소원</span>
       </div>
 
