@@ -376,6 +376,32 @@ export const dbService = {
         }
     },
 
+    async getReadingActivity(userId: string): Promise<Record<string, number>> {
+        const { data, error } = await supabase
+            .from('messages')
+            .select(`
+        created_at,
+        sessions!inner (
+          user_id
+        )
+      `)
+            .eq('sessions.user_id', userId);
+
+        if (error) {
+            console.error('Error fetching activity:', error);
+            return {};
+        }
+
+        const activity: Record<string, number> = {};
+
+        data.forEach((item: any) => {
+            const date = new Date(item.created_at).toISOString().split('T')[0];
+            activity[date] = (activity[date] || 0) + 1;
+        });
+
+        return activity;
+    },
+
     // Helper
     mapUserBook(data: any): Book {
         return {

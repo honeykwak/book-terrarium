@@ -8,6 +8,7 @@ import MessageBubble from './components/MessageBubble';
 import InputArea from './components/InputArea';
 import LoginScreen from './components/LoginScreen';
 import Onboarding from './components/Onboarding';
+import ReadingCalendar from './components/ReadingCalendar';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { EmotionLineGraph, FocusDonutChart, KeywordBarChart } from './components/ReportComponents';
 import {
@@ -86,7 +87,8 @@ const MyPageModal: React.FC<{
   onLogout: () => void;
   onDeleteAccount: () => void; // New Prop
   onClose: () => void;
-}> = ({ userName, userProfile, completedBooksCount, messageCount, onLogout, onDeleteAccount, onClose }) => (
+  readingActivity: Record<string, number>;
+}> = ({ userName, userProfile, completedBooksCount, messageCount, onLogout, onDeleteAccount, onClose, readingActivity }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-sage-900/40 backdrop-blur-sm">
     <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-fade-in-up">
       {/* Header */}
@@ -108,6 +110,11 @@ const MyPageModal: React.FC<{
           <span className="block text-2xl font-bold text-sage-700">{messageCount}</span>
           <span className="text-[10px] uppercase font-bold text-sage-400 tracking-wider">Talks</span>
         </div>
+      </div>
+
+      {/* Reading Calendar */}
+      <div className="p-4 border-b border-sage-100">
+        <ReadingCalendar activityData={readingActivity} />
       </div>
 
       {/* Footer Actions */}
@@ -742,6 +749,18 @@ const App: React.FC = () => {
 
   // Mobile Sidebar
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Reading Activity
+  const [readingActivity, setReadingActivity] = useState<Record<string, number>>({});
+
+  // Fetch Reading Activity on MyPage Open
+  useEffect(() => {
+    if (showMyPage && session?.user) {
+      dbService.getReadingActivity(session.user.id)
+        .then(setReadingActivity)
+        .catch(console.error);
+    }
+  }, [showMyPage, session]);
 
   // Book Therapy Features
   const [messageCount, setMessageCount] = useState(0);
@@ -1414,6 +1433,7 @@ const App: React.FC = () => {
       onLogout={handleLogout}
       onDeleteAccount={handleDeleteAccount}
       onClose={() => setShowMyPage(false)}
+      readingActivity={readingActivity}
     />
   );
 
