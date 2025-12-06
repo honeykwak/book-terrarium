@@ -1122,16 +1122,17 @@ const App: React.FC = () => {
         // For simplicity, we'll use the existing stream function but ignore the stream and just get the final text.
         // We construct a prompt to get JSON output.
         const recommendationPrompt = `
-          User input: "${text}"
-          Based on this input, recommend 3 specific book titles that would be helpful.
-          Return ONLY a JSON array of strings.Do not include any other text.
-  Example: ["Demian", "The Little Prince", "Walden"]
-    `;
+        User input: "${text}"
+        ${currentBook ? `Context: User is currently reading '${currentBook.title}'. The recommendation should be relevant to this setting or request.` : ''}
+        Based on this input, recommend 3 specific book titles that would be helpful.
+        Return ONLY a JSON array of strings. Do not include any other text.
+        Example: ["Demian", "The Little Prince", "Walden"]
+      `;
 
         let jsonString = '';
         await sendMessageStream(
           recommendationPrompt,
-          [], // No history needed for this specific extraction, or maybe we do? Let's keep it simple.
+          [],
           ModelType.FLASH,
           (chunk) => { jsonString += chunk; }
         );
@@ -1203,8 +1204,13 @@ const App: React.FC = () => {
     setMessages(prev => [...prev, aiPlaceholder]);
 
     try {
+      // Context Injection: If reading a book, remind AI of the context invisibly
+      const contentToSend = currentBook
+        ? `[System Note: User is currently reading '${currentBook.title}'. Ensure all responses are deeply grounded in this book's context unless explicitly asked otherwise.]\n\n${text}`
+        : text;
+
       const finalContent = await sendMessageStream(
-        text,
+        contentToSend,
         messages,
         selectedModel,
         (streamedText) => {
