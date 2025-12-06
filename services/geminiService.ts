@@ -32,18 +32,33 @@ const getClient = () => {
   return new GoogleGenerativeAI(apiKey);
 };
 
-export const initializeChat = (modelId: ModelType = ModelType.FLASH) => {
-  console.log("Initializing Gemini Chat with model:", modelId);
+// Helper to map internal Message type to Gemini Content type
+const mapMessagesToGeminiHistory = (messages: Message[]): { role: string; parts: { text: string }[] }[] => {
+  return messages
+    .filter(m => !m.isSystem && !m.isStreaming) // Filter system/streaming messages
+    .map(m => ({
+      role: m.role === Role.USER ? 'user' : 'model',
+      parts: [{ text: m.content }]
+    }));
+};
+
+export const initializeChat = (modelId: ModelType = ModelType.FLASH, history: Message[] = []) => {
+  // console.log("Initializing Gemini Chat with model:", modelId); // Reduce noise
   const genAI = getClient();
 
   // Re-initialize only if model changes or session doesn't exist
-  if (!chatSession || currentModel !== modelId) {
+  // FORCE RE-INIT if history is provided and different? 
+  // For simplicity: If history is provided, we assume we want a fresh start with this history.
+  if (!chatSession || currentModel !== modelId || history.length > 0) {
     const model = genAI.getGenerativeModel({
       model: modelId,
       systemInstruction: SYSTEM_INSTRUCTION
     });
 
+    const geminiHistory = mapMessagesToGeminiHistory(history);
+
     chatSession = model.startChat({
+      history: geminiHistory,
       generationConfig: {
         temperature: 0.7,
       },
@@ -64,7 +79,10 @@ export const sendMessageStream = async (
   onChunk: (text: string) => void
 ): Promise<string> => {
   try {
-    const chat = initializeChat(modelId);
+    // Pass history to initializeChat. 
+    // Note: We normally pass exclude the CURRENT message from history because sendMessageStream sends it.
+    // The 'history' arg here usually includes previous messages.
+    const chat = initializeChat(modelId, history);
 
     // In a real app, you might sync history here if the SDK required it manually,
     // but the stateful chat object handles context. 
