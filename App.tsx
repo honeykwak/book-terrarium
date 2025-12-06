@@ -584,6 +584,19 @@ const SidebarContent: React.FC<{
       </div>
     </div>
 
+    {/* Finish Reading Button (Conditional) */}
+    {currentBook && (
+      <div className="px-4 pb-2">
+        <button
+          onClick={handleRequestFinish}
+          className="w-full py-2.5 bg-sage-700 text-white rounded-xl shadow-sm hover:bg-sage-800 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+        >
+          <CheckCircleIcon className="w-4 h-4" />
+          완독하기
+        </button>
+      </div>
+    )}
+
     {/* User Profile Footer */}
     <div className="mt-auto p-4 border-t border-sage-200/60 bg-white/50 backdrop-blur-sm">
       <button
