@@ -994,16 +994,25 @@ const App: React.FC = () => {
       setCurrentBook(userBook);
       setCompletedBooks(prev => [...prev.filter(b => b.id !== userBook.id)]);
 
-      // 2. Link current session to this book
+      // 2. Link or Create Session
+      let activeSessionId = currentSession?.id;
+
       if (currentSession) {
+        // Link existing session
         await dbService.linkSessionToBook(currentSession.id, userBook.id);
 
-        // REFRESH SESSIONS to show the new badge
-        const updatedSessions = await dbService.getUserSessions(session.user.id);
-        setSessions(updatedSessions);
-        // Update current session object with new book info if needed, or just let reload handle it
+        // Update local object immediately to reflect change
         setCurrentSession({ ...currentSession, userBookId: userBook.id });
+      } else {
+        // Create NEW session for this book
+        const newSession = await dbService.createSession(session.user.id, userBook.id);
+        setCurrentSession(newSession);
+        activeSessionId = newSession.id;
       }
+
+      // REFRESH SESSIONS to show the new badge/item in sidebar
+      const updatedSessions = await dbService.getUserSessions(session.user.id);
+      setSessions(updatedSessions);
 
       // 3. System Message
       const systemMsg: Message = {
@@ -1015,8 +1024,8 @@ const App: React.FC = () => {
       };
 
       // Save system message
-      if (currentSession) {
-        await dbService.saveMessage(currentSession.id, systemMsg);
+      if (activeSessionId) {
+        await dbService.saveMessage(activeSessionId, systemMsg);
       }
       setMessages(prev => [...prev, systemMsg]);
 
