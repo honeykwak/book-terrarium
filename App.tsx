@@ -546,936 +546,984 @@ const SidebarContent: React.FC<{
   handleRequestFinish: () => void; // Keeping for context menu or future use
   setShowMyPage: (v: boolean) => void;
   // setCurrentBook no longer needed here as selection handles it
-}> = ({ currentBook, sessions, currentSessionId, userName, handleNewChat, handleSelectSession, handleDeleteSession, handleRequestFinish, setShowMyPage }) => (
-  <div className="flex flex-col h-full">
-    {/* Header */}
-    <div className="px-6 pt-6 pb-4">
-      <div className="flex items-center gap-3 mb-6">
-        <span className="font-serif font-bold text-2xl text-sage-900 tracking-tight">소원</span>
+}> = ({ currentBook, sessions, currentSessionId, userName, handleNewChat, handleSelectSession, handleDeleteSession, handleRequestFinish, setShowMyPage }) => {
+
+  // Separate Daily Session (Bookless) and Book Sessions
+  const dailySession = sessions.find(s => !s.userBookId);
+  const bookSessions = sessions.filter(s => s.userBookId);
+
+  const isDailyActive = dailySession && dailySession.id === currentSessionId;
+
+  return (
+    <div className="flex flex-col h-full bg-sage-50/50">
+      {/* Header & Daily Chat Slot */}
+      <div className="px-6 pt-8 pb-4">
+        <div className="flex items-center gap-3 mb-6">
+          <span className="font-serif font-bold text-2xl text-sage-900 tracking-tight">소원</span>
+        </div>
+
+        {/* Daily Chat - Dedicated Slot */}
+        <div className="relative group">
+          <button
+            onClick={() => {
+              if (dailySession) handleSelectSession(dailySession);
+              else handleNewChat();
+            }}
+            className={`flex items-center justify-between w-full p-4 rounded-xl transition-all shadow-sm relative ${isDailyActive
+                ? 'bg-white border-sage-200 shadow-md text-sage-900 ring-1 ring-sage-900/5'
+                : 'bg-white border border-sage-100 text-sage-600 hover:border-sage-300 hover:shadow-md'
+              }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isDailyActive ? 'bg-sage-100 text-sage-700' : 'bg-sage-50 text-sage-400 group-hover:bg-sage-100 group-hover:text-sage-600'}`}>
+                <SparklesIcon className="w-5 h-5" />
+              </div>
+              <div className="flex flex-col items-start">
+                <span className={`text-sm font-bold ${isDailyActive ? 'text-sage-900' : 'text-sage-700'}`}>소원과 대화하기</span>
+                <span className="text-[10px] text-sage-400">
+                  {dailySession ? '오늘의 이야기를 나눠보세요' : '새로운 대화를 시작해보세요'}
+                </span>
+              </div>
+            </div>
+
+            {/* Active Indicator */}
+            {isDailyActive && (
+              <div className="absolute right-0 top-0 bottom-0 w-1 bg-sage-800 rounded-r-xl"></div>
+            )}
+          </button>
+
+          {/* Delete Button for Daily Chat (Only if exists) */}
+          {dailySession && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteSession(dailySession.id);
+              }}
+              className="absolute top-2 right-2 p-1.5 text-sage-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10"
+              title="대화 초기화"
+            >
+              <TrashIcon className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
-      <button
-        onClick={handleNewChat}
-        className="flex items-center justify-center gap-2 w-full py-3 bg-white border border-sage-200 rounded-xl hover:bg-sage-100 hover:border-sage-300 transition-all text-sage-700 text-sm font-bold shadow-sm group"
-      >
-        <PlusIcon className="w-4 h-4 text-sage-400 group-hover:text-sage-600 transition-colors" />
-        새로운 대화
-      </button>
-    </div>
+      {/* Book Session List */}
+      <div className="flex-1 overflow-y-auto px-4 custom-scrollbar">
+        {bookSessions.length > 0 && (
+          <div className="ml-2 mb-2 mt-2">
+            <span className="text-xs font-bold text-sage-400 uppercase tracking-wider">Book Chats</span>
+          </div>
+        )}
 
-    {/* Scrollable Session List */}
-    <div className="flex-1 overflow-y-auto px-1 custom-scrollbar">
-      <div className="space-y-1 mt-2">
-        {sessions.map(session => {
-          const isActive = session.id === currentSessionId;
-          const displayTitle = session.bookTitle || '소원과의 대화';
+        <div className="space-y-2">
+          {bookSessions.map(session => {
+            const isActive = session.id === currentSessionId;
+            const displayTitle = session.bookTitle || '이름 없는 책'; // Should ideally always have title
 
-          return (
-            <div key={session.id} className="relative group">
-              <button
-                onClick={() => handleSelectSession(session)}
-                className={`w-full text-left p-3 rounded-xl transition-all relative pr-10 ${isActive
-                  ? 'bg-white shadow-md border border-sage-100'
-                  : 'hover:bg-sage-100/50 border border-transparent'
-                  }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-col gap-0.5 w-full">
-                    {/* Title Priority: Book Name > Default */}
-                    <span className={`text-sm font-bold truncate ${isActive ? 'text-sage-900' : 'text-sage-700'}`}>
-                      {displayTitle}
-                    </span>
-
-                    {/* Date Subtitle */}
-                    <span className="text-[10px] text-sage-400 font-medium">
-                      {new Date(session.createdAt).toLocaleDateString()} {new Date(session.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+            return (
+              <div key={session.id} className="relative group">
+                <button
+                  onClick={() => handleSelectSession(session)}
+                  className={`w-full text-left p-3 rounded-xl transition-all relative pr-10 ${isActive
+                    ? 'bg-white shadow-md border border-sage-100'
+                    : 'hover:bg-sage-100/50 border border-transparent hover:border-sage-100'
+                    }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex flex-col gap-0.5 w-full">
+                      <span className={`text-sm font-bold truncate ${isActive ? 'text-sage-900' : 'text-sage-700'}`}>
+                        {displayTitle}
+                      </span>
+                      <span className="text-[10px] text-sage-400 font-medium">
+                        {new Date(session.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                {isActive && (
-                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-sage-800 rounded-r-xl"></div>
-                )}
-              </button>
+                  {isActive && (
+                    <div className="absolute right-0 top-0 bottom-0 w-1 bg-sage-800 rounded-r-xl"></div>
+                  )}
+                </button>
 
-              {/* Delete Button - Hover on Desktop, Always Visible (Subtle) on Mobile */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteSession(session.id);
-                }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-sage-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10"
-                title="대화 삭제"
-              >
-                <TrashIcon className="w-4 h-4" />
-              </button>
-            </div>
-          );
-        })}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteSession(session.id);
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-sage-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10"
+                  title="대화 삭제"
+                >
+                  <TrashIcon className="w-4 h-4" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
 
-        {sessions.length === 0 && (
-          <div className="text-center py-8 text-sage-400 text-sm">
-            기록된 대화가 없습니다.
+        {bookSessions.length === 0 && (
+          <div className="text-center py-12 text-sage-400 text-xs">
+            읽고 있는 책이 없습니다.<br />
+            소원에게 책을 추천받아보세요.
           </div>
         )}
       </div>
-    </div>
 
-    {/* Finish Reading Button (Conditional) */}
-    {currentBook && (
-      <div className="px-4 pb-2">
+      {/* Finish Reading Button (Conditional) */}
+      {currentBook && (
+        <div className="px-6 pb-4">
+          <button
+            onClick={handleRequestFinish}
+            className="w-full py-3 bg-sage-700 text-white rounded-xl shadow-lg shadow-sage-200 hover:bg-sage-800 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+          >
+            <CheckCircleIcon className="w-4 h-4" />
+            완독하기
+          </button>
+        </div>
+      )}
+
+      {/* User Profile Footer */}
+      <div className="mt-auto p-4 border-t border-sage-200/60 bg-white/50 backdrop-blur-sm">
         <button
-          onClick={handleRequestFinish}
-          className="w-full py-2.5 bg-sage-700 text-white rounded-xl shadow-sm hover:bg-sage-800 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+          onClick={() => setShowMyPage(true)}
+          className="flex items-center gap-3 w-full hover:bg-white p-2 rounded-xl transition-all group"
         >
-          <CheckCircleIcon className="w-4 h-4" />
-          완독하기
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sage-200 to-sage-300 flex items-center justify-center text-white font-serif text-lg shadow-inner">
+            {userName ? userName.charAt(0).toUpperCase() : 'G'}
+          </div>
+          <div className="flex flex-col items-start overflow-hidden">
+            <span className="text-sm font-bold text-sage-800 truncate w-full text-left group-hover:text-sage-900">{userName || 'Guest User'}</span>
+            <span className="text-[10px] text-sage-500 truncate w-full text-left">My Page</span>
+          </div>
         </button>
       </div>
-    )}
-
-    {/* User Profile Footer */}
-    <div className="mt-auto p-4 border-t border-sage-200/60 bg-white/50 backdrop-blur-sm">
-      <button
-        onClick={() => setShowMyPage(true)}
-        className="flex items-center gap-3 w-full hover:bg-white p-2 rounded-xl transition-all group"
-      >
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sage-200 to-sage-300 flex items-center justify-center text-white font-serif text-lg shadow-inner">
-          {userName ? userName.charAt(0).toUpperCase() : 'G'}
-        </div>
-        <div className="flex flex-col items-start overflow-hidden">
-          <span className="text-sm font-bold text-sage-800 truncate w-full text-left group-hover:text-sage-900">{userName || 'Guest User'}</span>
-          <span className="text-[10px] text-sage-500 truncate w-full text-left">My Page</span>
-        </div>
-      </button>
     </div>
-  </div>
-);
+  );
 
 
-const App: React.FC = () => {
-  // Session State
-  const [appState, setAppState] = useState<AppState>('LOGIN');
-  const [session, setSession] = useState<any>(null);
-  const [userName, setUserName] = useState('');
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
-  const [sessions, setSessions] = useState<(ChatSession & { bookTitle?: string; dateTitle?: string })[]>([]); // New State
+  const App: React.FC = () => {
+    // Session State
+    const [appState, setAppState] = useState<AppState>('LOGIN');
+    const [session, setSession] = useState<any>(null);
+    const [userName, setUserName] = useState('');
+    const [userProfile, setUserProfile] = useState<any>(null);
+    const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
+    const [sessions, setSessions] = useState<(ChatSession & { bookTitle?: string; dateTitle?: string })[]>([]); // New State
 
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [dbError, setDbError] = useState<string | null>(null);
-  const [selectedModel, setSelectedModel] = useState<ModelType>(ModelType.FLASH);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [inputValue, setInputValue] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [dbError, setDbError] = useState<string | null>(null);
+    const [selectedModel, setSelectedModel] = useState<ModelType>(ModelType.FLASH);
 
-  // Delete Confirmation State (Moved to top)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+    // Delete Confirmation State (Moved to top)
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
-  // Mobile Sidebar
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    // Mobile Sidebar
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Book Therapy Features
-  const [messageCount, setMessageCount] = useState(0);
+    // Book Therapy Features
+    const [messageCount, setMessageCount] = useState(0);
 
-  const [currentBook, setCurrentBook] = useState<Book | null>(null);
-  const [completedBooks, setCompletedBooks] = useState<Book[]>([]);
+    const [currentBook, setCurrentBook] = useState<Book | null>(null);
+    const [completedBooks, setCompletedBooks] = useState<Book[]>([]);
 
-  // Library & Community State
-  const [showLibrary, setShowLibrary] = useState(false);
-  const [viewingBook, setViewingBook] = useState<Book | null>(null);
-  const [libraryTab, setLibraryTab] = useState<LibraryTab>('REPORT');
-  const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([]);
+    // Library & Community State
+    const [showLibrary, setShowLibrary] = useState(false);
+    const [viewingBook, setViewingBook] = useState<Book | null>(null);
+    const [libraryTab, setLibraryTab] = useState<LibraryTab>('REPORT');
+    const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([]);
 
-  const [showMyPage, setShowMyPage] = useState(false);
-  const [showFinishConfirm, setShowFinishConfirm] = useState(false);
+    const [showMyPage, setShowMyPage] = useState(false);
+    const [showFinishConfirm, setShowFinishConfirm] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+    const scrollToBottom = () => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
 
-  // --- Auth & Session Management ---
-  useEffect(() => {
-    // 1. Check active session on load
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    // 2. Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Initial greeting if current book exists (Test Mode) -> Migrated to handleBookSelect
-  // We remove the automatic effect to prevent weird loops, logic moved to book selection
-
-  // Initial Data Fetching
-  useEffect(() => {
-    if (session?.user) {
-      loadUserData(session.user.id);
-    }
-  }, [session]);
-
-  const loadUserData = async (userId: string) => {
-    try {
-      // 1. Profile
-      const profile = await dbService.getUserProfile(userId);
-      if (profile) {
-        setUserName(profile.nickname);
-        setUserProfile(profile);
-        setAppState('MAIN');
-      } else {
-        setAppState('ONBOARDING');
-      }
-
-      // 2. Load User Books
-      const books = await dbService.getUserBooks(userId);
-      setCompletedBooks(books.filter(b => b.status === 'COMPLETED'));
-
-      // 3. Load Chat Sessions (NEW)
-      const userSessions = await dbService.getUserSessions(userId);
-      setSessions(userSessions);
-
-      // Auto-select most recent session
-      if (userSessions.length > 0) {
-        const recent = userSessions[0];
-        setCurrentSession(recent);
-        const msgs = await dbService.getMessages(recent.id);
-        setMessages(msgs);
-
-        if (recent.userBookId) {
-          // Find book details if linked
-          const relevantBook = books.find(b => b.id === recent.userBookId); // Note: userBookId in session refers to user_books.id
-          if (relevantBook) setCurrentBook(relevantBook);
-        } else {
-          setCurrentBook(null);
-        }
-      } else {
-        // No sessions, ready for new chat
-      }
-
-      // 4. Community Posts
-      const posts = await dbService.getCommunityPosts();
-      setCommunityPosts(posts);
-
-    } catch (error) {
-      console.error('Error loading data:', error);
-    }
-  };
-
-  const handleLogin = (newSession: any) => {
-    setSession(newSession);
-    // State transition handled in useEffect
-  };
-
-  const handleOnboardingComplete = async (data: any) => {
-    if (!session?.user) return;
-
-    try {
-      await dbService.updateUserProfile(session.user.id, {
-        nickname: data.name,
-        // age_group: data.ageGroup, // Removed as per new schema
-        // interests: data.interests // Removed as per new schema
-      });
-      setUserProfile({
-        ...data,
-        id: session.user.id,
-        email: session.user.email,
-        nickname: data.name
-      });
-      setUserName(data.name);
-      setAppState('MAIN');
-    } catch (error) {
-      console.error('Error saving profile:', error);
-    }
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    setAppState('LOGIN');
-    setMessages([]);
-    setMessageCount(0);
-    setCurrentBook(null);
-    setCurrentSession(null); // Clear current session on logout
-    setUserName('');
-    setUserProfile(null);
-    setShowMyPage(false);
-    resetChat();
-  };
-
-  const handleNewChat = () => {
-    // Check if there is already a session with no book assigned
-    const existingBooklessSession = sessions.find(s => !s.userBookId);
-
-    if (existingBooklessSession) {
-      handleSelectSession(existingBooklessSession);
-      setIsMobileMenuOpen(false);
-      return;
-    }
-
-    setMessages([]);
-    setMessageCount(0);
-    setCurrentBook(null);
-    setCurrentSession(null); // Clear current session for new chat
-    resetChat();
-    setIsMobileMenuOpen(false);
-  };
-
-  const handleRequestFinish = () => {
-    setShowFinishConfirm(true);
-  };
-
-  const handleConfirmFinish = async () => {
-    if (!currentBook || !currentSession) return; // Ensure session exists
-
-    setShowFinishConfirm(false);
-    setIsLoading(true);
-
-    // Mock API call simulation
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-
-    try {
-      // Generate mock report (in real app, this would come from AI analysis of chat history)
-      const mockReport: ReportAnalytics = {
-        emotionAnalysis: {
-          primary: '성취감',
-          intensity: 8,
-          keywords: ['완독', '뿌듯함', '새로운 시작']
-        },
-        readingHabits: {
-          sessionCount: 12,
-          avgDurationMinutes: 45
-        },
-        growthAreas: ['꾸준한 독서 습관', '깊이 있는 사색']
-      };
-
-      const analytics = {
-        summary: "독서를 통해 차분함을 되찾으셨습니다.",
-        emotionTrajectory: [{ progress: 0, score: 3 }, { progress: 50, score: 4 }, { progress: 100, score: 4 }],
-        focusAreas: [{ label: '안정', percentage: 60, color: '#10B981' }, { label: '이해', percentage: 40, color: '#6366F1' }],
-        keywords: [{ label: '시작', count: 5 }],
-        actionItems: ["마음속 문장 간직하기"]
-      };
-
-      await dbService.updateUserBook(currentBook.id, {
-        completedDate: new Date(),
-        status: 'COMPLETED',
-        report: mockReport
+    // --- Auth & Session Management ---
+    useEffect(() => {
+      // 1. Check active session on load
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session);
       });
 
-      // Mark the session as completed
-      await dbService.updateSession(currentSession.id, { expiresAt: new Date() });
+      // 2. Listen for auth changes
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session);
+      });
 
+      return () => subscription.unsubscribe();
+    }, []);
 
-      const completed: Book = {
-        ...currentBook,
-        completedDate: new Date(),
-        report: mockReport,
-        analytics: analytics,
-        review: '',
-        isShared: false,
-        chatHistory: [...messages]
-      };
+    useEffect(() => {
+      scrollToBottom();
+    }, [messages]);
 
-      setCompletedBooks(prev => [completed, ...prev]);
+    // Initial greeting if current book exists (Test Mode) -> Migrated to handleBookSelect
+    // We remove the automatic effect to prevent weird loops, logic moved to book selection
 
-      setMessages([]);
-      setCurrentBook(null);
-      setCurrentSession(null); // Clear current session after finishing book
-      setMessageCount(0);
-      resetChat();
-      setIsLoading(false);
-      setShowLibrary(true);
-    } catch (error) {
-      console.error('Error finishing book:', error);
-      setIsLoading(false);
-    }
-  };
-
-  const handleBookSelect = async (book: Book) => {
-    if (!session?.user) return;
-    setIsLoading(true);
-
-    try {
-      // 1. Save to DB
-      const userBook = await dbService.createUserBook(session.user.id, book);
-      setCurrentBook(userBook);
-      setCompletedBooks(prev => [...prev.filter(b => b.id !== userBook.id)]);
-
-      // 2. Link current session to this book
-      if (currentSession) {
-        await dbService.linkSessionToBook(currentSession.id, userBook.id);
-
-        // REFRESH SESSIONS to show the new badge
-        const updatedSessions = await dbService.getUserSessions(session.user.id);
-        setSessions(updatedSessions);
-        // Update current session object with new book info if needed, or just let reload handle it
-        setCurrentSession({ ...currentSession, userBookId: userBook.id });
+    // Initial Data Fetching
+    useEffect(() => {
+      if (session?.user) {
+        loadUserData(session.user.id);
       }
+    }, [session]);
 
-      // 3. System Message
-      const systemMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        role: Role.MODEL,
-        content: `** [${book.title}] ** 독서 모드를 시작합니다.\n이 책의 첫 문장을 읽고 어떤 느낌이 드셨나요 ? `,
-        timestamp: new Date(),
-        isSystem: true
-      };
-
-      // Save system message
-      if (currentSession) {
-        await dbService.saveMessage(currentSession.id, systemMsg);
-      }
-      setMessages(prev => [...prev, systemMsg]);
-
-    } catch (error) {
-      console.error('Error selecting book:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSelectSession = async (session: ChatSession) => {
-    setCurrentSession(session);
-    setIsLoading(true);
-    try {
-      const msgs = await dbService.getMessages(session.id);
-      setMessages(msgs);
-
-      if (session.userBookId) {
-        // Find the book logic
-        // We need all books to find specifics, doing a fetch or finding in state if we had it.
-        // For simplicity, let's just fetch user books again or trust linking.
-        // To avoid an extra call, we can rely on cached `completedBooks` + `currentBook` or just fetch again.
-        // Fetching again is safer.
-        const allBooks = await dbService.getUserBooks(session.userId);
-        const book = allBooks.find(b => b.id === session.userBookId);
-        setCurrentBook(book || null);
-      } else {
-        setCurrentBook(null);
-      }
-      setIsMobileMenuOpen(false);
-    } catch (e) {
-      console.error("Failed to load session:", e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSend = async (text: string = inputValue, isHiddenPrompt: boolean = false) => {
-    if ((!text.trim() && !isHiddenPrompt) || isLoading) return;
-
-    let displayMsg: Message | null = null;
-    let activeSessionId = currentSession?.id;
-    const userId = userProfile?.id || session?.user?.id;
-
-    // Create session if needed
-    if (!activeSessionId && userId) {
+    const loadUserData = async (userId: string) => {
       try {
-        const newSession = await dbService.createSession(userId);
-        setCurrentSession(newSession);
-        activeSessionId = newSession.id;
-        // Refresh sidebar list to show new session
-        const updatedSessions = await dbService.getUserSessions(userId);
-        setSessions(updatedSessions);
-      } catch (e) {
-        console.error("Failed to create session:", e);
-        setDbError("채팅 세션을 생성할 수 없습니다. 데이터베이스 권한을 확인해주세요. (403 Error)");
+        // 1. Profile
+        const profile = await dbService.getUserProfile(userId);
+        if (profile) {
+          setUserName(profile.nickname);
+          setUserProfile(profile);
+          setAppState('MAIN');
+        } else {
+          setAppState('ONBOARDING');
+        }
+
+        // 2. Load User Books
+        const books = await dbService.getUserBooks(userId);
+        setCompletedBooks(books.filter(b => b.status === 'COMPLETED'));
+
+        // 3. Load Chat Sessions (NEW)
+        const userSessions = await dbService.getUserSessions(userId);
+        setSessions(userSessions);
+
+        // Auto-select most recent session
+        if (userSessions.length > 0) {
+          const recent = userSessions[0];
+          setCurrentSession(recent);
+          const msgs = await dbService.getMessages(recent.id);
+          setMessages(msgs);
+
+          if (recent.userBookId) {
+            // Find book details if linked
+            const relevantBook = books.find(b => b.id === recent.userBookId); // Note: userBookId in session refers to user_books.id
+            if (relevantBook) setCurrentBook(relevantBook);
+          } else {
+            setCurrentBook(null);
+          }
+        } else {
+          // No sessions, ready for new chat
+        }
+
+        // 4. Community Posts
+        const posts = await dbService.getCommunityPosts();
+        setCommunityPosts(posts);
+
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    };
+
+    const handleLogin = (newSession: any) => {
+      setSession(newSession);
+      // State transition handled in useEffect
+    };
+
+    const handleOnboardingComplete = async (data: any) => {
+      if (!session?.user) return;
+
+      try {
+        await dbService.updateUserProfile(session.user.id, {
+          nickname: data.name,
+          // age_group: data.ageGroup, // Removed as per new schema
+          // interests: data.interests // Removed as per new schema
+        });
+        setUserProfile({
+          ...data,
+          id: session.user.id,
+          email: session.user.email,
+          nickname: data.name
+        });
+        setUserName(data.name);
+        setAppState('MAIN');
+      } catch (error) {
+        console.error('Error saving profile:', error);
+      }
+    };
+
+    const handleLogout = async () => {
+      await supabase.auth.signOut();
+      setSession(null);
+      setAppState('LOGIN');
+      setMessages([]);
+      setMessageCount(0);
+      setCurrentBook(null);
+      setCurrentSession(null); // Clear current session on logout
+      setUserName('');
+      setUserProfile(null);
+      setShowMyPage(false);
+      resetChat();
+    };
+
+    const handleNewChat = () => {
+      // Check if there is already a session with no book assigned
+      const existingBooklessSession = sessions.find(s => !s.userBookId);
+
+      if (existingBooklessSession) {
+        handleSelectSession(existingBooklessSession);
+        setIsMobileMenuOpen(false);
         return;
       }
-    }
 
-    if (!activeSessionId) {
-      console.error("No active session to send message.");
-      setDbError("활성 세션이 없습니다. 새로고침 후 다시 시도해주세요.");
-      return;
-    }
+      setMessages([]);
+      setMessageCount(0);
+      setCurrentBook(null);
+      setCurrentSession(null); // Clear current session for new chat
+      resetChat();
+      setIsMobileMenuOpen(false);
+    };
 
-    if (!isHiddenPrompt) {
-      const userMsgId = Date.now().toString();
-      displayMsg = {
-        id: userMsgId,
-        role: Role.USER,
-        content: text,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, displayMsg!]);
+    const handleRequestFinish = () => {
+      setShowFinishConfirm(true);
+    };
 
-      // Save user message to DB
-      await dbService.saveMessage(activeSessionId, displayMsg!);
+    const handleConfirmFinish = async () => {
+      if (!currentBook || !currentSession) return; // Ensure session exists
 
-      setInputValue('');
-      setMessageCount(prev => prev + 1);
-    }
-    // --- TRIGGER: Real Book Recommendation ---
-    if (text.includes("추천") || text.includes("recommend")) {
+      setShowFinishConfirm(false);
+      setIsLoading(true);
+
+      // Mock API call simulation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+
+      try {
+        // Generate mock report (in real app, this would come from AI analysis of chat history)
+        const mockReport: ReportAnalytics = {
+          emotionAnalysis: {
+            primary: '성취감',
+            intensity: 8,
+            keywords: ['완독', '뿌듯함', '새로운 시작']
+          },
+          readingHabits: {
+            sessionCount: 12,
+            avgDurationMinutes: 45
+          },
+          growthAreas: ['꾸준한 독서 습관', '깊이 있는 사색']
+        };
+
+        const analytics = {
+          summary: "독서를 통해 차분함을 되찾으셨습니다.",
+          emotionTrajectory: [{ progress: 0, score: 3 }, { progress: 50, score: 4 }, { progress: 100, score: 4 }],
+          focusAreas: [{ label: '안정', percentage: 60, color: '#10B981' }, { label: '이해', percentage: 40, color: '#6366F1' }],
+          keywords: [{ label: '시작', count: 5 }],
+          actionItems: ["마음속 문장 간직하기"]
+        };
+
+        await dbService.updateUserBook(currentBook.id, {
+          completedDate: new Date(),
+          status: 'COMPLETED',
+          report: mockReport
+        });
+
+        // Mark the session as completed
+        await dbService.updateSession(currentSession.id, { expiresAt: new Date() });
+
+
+        const completed: Book = {
+          ...currentBook,
+          completedDate: new Date(),
+          report: mockReport,
+          analytics: analytics,
+          review: '',
+          isShared: false,
+          chatHistory: [...messages]
+        };
+
+        setCompletedBooks(prev => [completed, ...prev]);
+
+        setMessages([]);
+        setCurrentBook(null);
+        setCurrentSession(null); // Clear current session after finishing book
+        setMessageCount(0);
+        resetChat();
+        setIsLoading(false);
+        setShowLibrary(true);
+      } catch (error) {
+        console.error('Error finishing book:', error);
+        setIsLoading(false);
+      }
+    };
+
+    const handleBookSelect = async (book: Book) => {
+      if (!session?.user) return;
       setIsLoading(true);
 
       try {
-        // 1. Ask Gemini for book titles based on user context
-        // We use a separate non-streaming call or just a new stream for this hidden step.
-        // For simplicity, we'll use the existing stream function but ignore the stream and just get the final text.
-        // We construct a prompt to get JSON output.
-        const recommendationPrompt = `
+        // 1. Save to DB
+        const userBook = await dbService.createUserBook(session.user.id, book);
+        setCurrentBook(userBook);
+        setCompletedBooks(prev => [...prev.filter(b => b.id !== userBook.id)]);
+
+        // 2. Link current session to this book
+        if (currentSession) {
+          await dbService.linkSessionToBook(currentSession.id, userBook.id);
+
+          // REFRESH SESSIONS to show the new badge
+          const updatedSessions = await dbService.getUserSessions(session.user.id);
+          setSessions(updatedSessions);
+          // Update current session object with new book info if needed, or just let reload handle it
+          setCurrentSession({ ...currentSession, userBookId: userBook.id });
+        }
+
+        // 3. System Message
+        const systemMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          role: Role.MODEL,
+          content: `** [${book.title}] ** 독서 모드를 시작합니다.\n이 책의 첫 문장을 읽고 어떤 느낌이 드셨나요 ? `,
+          timestamp: new Date(),
+          isSystem: true
+        };
+
+        // Save system message
+        if (currentSession) {
+          await dbService.saveMessage(currentSession.id, systemMsg);
+        }
+        setMessages(prev => [...prev, systemMsg]);
+
+      } catch (error) {
+        console.error('Error selecting book:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const handleSelectSession = async (session: ChatSession) => {
+      setCurrentSession(session);
+      setIsLoading(true);
+      try {
+        const msgs = await dbService.getMessages(session.id);
+        setMessages(msgs);
+
+        if (session.userBookId) {
+          // Find the book logic
+          // We need all books to find specifics, doing a fetch or finding in state if we had it.
+          // For simplicity, let's just fetch user books again or trust linking.
+          // To avoid an extra call, we can rely on cached `completedBooks` + `currentBook` or just fetch again.
+          // Fetching again is safer.
+          const allBooks = await dbService.getUserBooks(session.userId);
+          const book = allBooks.find(b => b.id === session.userBookId);
+          setCurrentBook(book || null);
+        } else {
+          setCurrentBook(null);
+        }
+        setIsMobileMenuOpen(false);
+      } catch (e) {
+        console.error("Failed to load session:", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const handleSend = async (text: string = inputValue, isHiddenPrompt: boolean = false) => {
+      if ((!text.trim() && !isHiddenPrompt) || isLoading) return;
+
+      let displayMsg: Message | null = null;
+      let activeSessionId = currentSession?.id;
+      const userId = userProfile?.id || session?.user?.id;
+
+      // Create session if needed
+      if (!activeSessionId && userId) {
+        try {
+          const newSession = await dbService.createSession(userId);
+          setCurrentSession(newSession);
+          activeSessionId = newSession.id;
+          // Refresh sidebar list to show new session
+          const updatedSessions = await dbService.getUserSessions(userId);
+          setSessions(updatedSessions);
+        } catch (e) {
+          console.error("Failed to create session:", e);
+          setDbError("채팅 세션을 생성할 수 없습니다. 데이터베이스 권한을 확인해주세요. (403 Error)");
+          return;
+        }
+      }
+
+      if (!activeSessionId) {
+        console.error("No active session to send message.");
+        setDbError("활성 세션이 없습니다. 새로고침 후 다시 시도해주세요.");
+        return;
+      }
+
+      if (!isHiddenPrompt) {
+        const userMsgId = Date.now().toString();
+        displayMsg = {
+          id: userMsgId,
+          role: Role.USER,
+          content: text,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, displayMsg!]);
+
+        // Save user message to DB
+        await dbService.saveMessage(activeSessionId, displayMsg!);
+
+        setInputValue('');
+        setMessageCount(prev => prev + 1);
+      }
+      // --- TRIGGER: Real Book Recommendation ---
+      if (text.includes("추천") || text.includes("recommend")) {
+        setIsLoading(true);
+
+        try {
+          // 1. Ask Gemini for book titles based on user context
+          // We use a separate non-streaming call or just a new stream for this hidden step.
+          // For simplicity, we'll use the existing stream function but ignore the stream and just get the final text.
+          // We construct a prompt to get JSON output.
+          const recommendationPrompt = `
           User input: "${text}"
           Based on this input, recommend 3 specific book titles that would be helpful.
           Return ONLY a JSON array of strings.Do not include any other text.
   Example: ["Demian", "The Little Prince", "Walden"]
     `;
 
-        let jsonString = '';
-        await sendMessageStream(
-          recommendationPrompt,
-          [], // No history needed for this specific extraction, or maybe we do? Let's keep it simple.
-          ModelType.FLASH,
-          (chunk) => { jsonString += chunk; }
+          let jsonString = '';
+          await sendMessageStream(
+            recommendationPrompt,
+            [], // No history needed for this specific extraction, or maybe we do? Let's keep it simple.
+            ModelType.FLASH,
+            (chunk) => { jsonString += chunk; }
+          );
+
+          // Clean up markdown code blocks if present
+          jsonString = jsonString.replace(/```json/g, '').replace(/```/g, '').trim();
+
+          let titles: string[] = [];
+          try {
+            titles = JSON.parse(jsonString);
+          } catch (e) {
+            console.error("Failed to parse book titles from AI:", jsonString);
+            // Fallback: Search for the user's text directly
+            titles = [text];
+          }
+
+          // 2. Fetch details from Google Books API
+          const recommendedBooks: Book[] = [];
+          for (const title of titles) {
+            const results = await searchBooks(title);
+            if (results.length > 0) {
+              recommendedBooks.push(results[0]); // Take the best match
+            }
+          }
+
+          // 3. Create the recommendation message
+          const recMsg: Message = {
+            id: (Date.now() + 1).toString(),
+            role: Role.MODEL,
+            content: `${userName ? userName + '님' : '당신'}의 상황에 맞는 책들을 찾아보았습니다.\n이 책들이 위로가 되기를 바랍니다.`,
+            timestamp: new Date(),
+            recommendedBooks: recommendedBooks
+          };
+
+          setMessages(prev => [...prev, recMsg]);
+
+          // Save to DB
+          if (activeSessionId) {
+            await dbService.saveMessage(activeSessionId, recMsg);
+          }
+
+        } catch (error) {
+          console.error("Error getting recommendations:", error);
+          // Fallback message
+          const errorMsg: Message = {
+            id: Date.now().toString(),
+            role: Role.MODEL,
+            content: "죄송합니다. 책을 추천하는 중에 문제가 발생했습니다.",
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, errorMsg]);
+        } finally {
+          setIsLoading(false);
+        }
+        return;
+      }
+
+
+      setIsLoading(true);
+
+      const aiMsgId = (Date.now() + 1).toString();
+      const aiPlaceholder: Message = {
+        id: aiMsgId,
+        role: Role.MODEL,
+        content: '',
+        isStreaming: true,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, aiPlaceholder]);
+
+      try {
+        const finalContent = await sendMessageStream(
+          text,
+          messages,
+          selectedModel,
+          (streamedText) => {
+            setMessages(prev => prev.map(msg =>
+              msg.id === aiMsgId
+                ? { ...msg, content: streamedText }
+                : msg
+            ));
+          }
         );
 
-        // Clean up markdown code blocks if present
-        jsonString = jsonString.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        let titles: string[] = [];
-        try {
-          titles = JSON.parse(jsonString);
-        } catch (e) {
-          console.error("Failed to parse book titles from AI:", jsonString);
-          // Fallback: Search for the user's text directly
-          titles = [text];
-        }
-
-        // 2. Fetch details from Google Books API
-        const recommendedBooks: Book[] = [];
-        for (const title of titles) {
-          const results = await searchBooks(title);
-          if (results.length > 0) {
-            recommendedBooks.push(results[0]); // Take the best match
-          }
-        }
-
-        // 3. Create the recommendation message
-        const recMsg: Message = {
-          id: (Date.now() + 1).toString(),
-          role: Role.MODEL,
-          content: `${userName ? userName + '님' : '당신'}의 상황에 맞는 책들을 찾아보았습니다.\n이 책들이 위로가 되기를 바랍니다.`,
-          timestamp: new Date(),
-          recommendedBooks: recommendedBooks
-        };
-
-        setMessages(prev => [...prev, recMsg]);
-
-        // Save to DB
+        // Save AI message to DB after streaming completes
         if (activeSessionId) {
-          await dbService.saveMessage(activeSessionId, recMsg);
+          const finalAiMsg: Message = {
+            id: aiMsgId,
+            role: Role.MODEL,
+            content: finalContent,
+            timestamp: new Date(),
+            isStreaming: false
+          };
+          await dbService.saveMessage(activeSessionId, finalAiMsg);
         }
 
       } catch (error) {
-        console.error("Error getting recommendations:", error);
-        // Fallback message
-        const errorMsg: Message = {
-          id: Date.now().toString(),
-          role: Role.MODEL,
-          content: "죄송합니다. 책을 추천하는 중에 문제가 발생했습니다.",
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, errorMsg]);
+        console.error(error);
+        setMessages(prev => prev.map(msg =>
+          msg.id === aiMsgId
+            ? { ...msg, content: "**오류가 발생했습니다.** 잠시 후 다시 시도해 주세요." }
+            : msg
+        ));
       } finally {
         setIsLoading(false);
+        setMessages(prev => prev.map(msg =>
+          msg.id === aiMsgId
+            ? { ...msg, isStreaming: false }
+            : msg
+        ));
       }
-      return;
-    }
-
-
-    setIsLoading(true);
-
-    const aiMsgId = (Date.now() + 1).toString();
-    const aiPlaceholder: Message = {
-      id: aiMsgId,
-      role: Role.MODEL,
-      content: '',
-      isStreaming: true,
-      timestamp: new Date()
     };
-    setMessages(prev => [...prev, aiPlaceholder]);
 
-    try {
-      const finalContent = await sendMessageStream(
-        text,
-        messages,
-        selectedModel,
-        (streamedText) => {
-          setMessages(prev => prev.map(msg =>
-            msg.id === aiMsgId
-              ? { ...msg, content: streamedText }
-              : msg
-          ));
+    // --- Library Handlers ---
+    const handleUpdateReview = (bookId: string, text: string) => {
+      setCompletedBooks(prev => prev.map(b => b.id === bookId ? { ...b, review: text } : b));
+      if (viewingBook?.id === bookId) {
+        setViewingBook(prev => prev ? { ...prev, review: text } : null);
+      }
+    };
+
+    const handleToggleShare = (bookId: string) => {
+      const targetBook = completedBooks.find(b => b.id === bookId);
+      if (!targetBook) return;
+
+      const newStatus = !targetBook.isShared;
+      setCompletedBooks(prev => prev.map(b => b.id === bookId ? { ...b, isShared: newStatus } : b));
+      if (viewingBook?.id === bookId) {
+        setViewingBook(prev => prev ? { ...prev, isShared: newStatus } : null);
+      }
+    };
+
+    const handleLikePost = (postId: string) => {
+      setCommunityPosts(prev => prev.map(p => {
+        if (p.id === postId) {
+          return { ...p, likes: p.isLiked ? p.likes - 1 : p.likes + 1, isLiked: !p.isLiked };
         }
+        return p;
+      }));
+    };
+
+    const handleDeleteAccount = async () => {
+      if (!session?.user) return;
+      try {
+        await dbService.deleteUserProfile(session.user.id);
+        await handleLogout();
+        alert('계정이 초기화되었습니다.');
+      } catch (error) {
+        console.error("Account deletion failed:", error);
+        alert('계정 삭제 중 오류가 발생했습니다.');
+      }
+    };
+
+    const handleDeleteSession = (sessionId: string) => {
+      setSessionToDelete(sessionId);
+      setShowDeleteConfirm(true);
+    };
+
+    const confirmDeleteSession = async () => {
+      if (!sessionToDelete) return;
+      try {
+        await dbService.deleteSession(sessionToDelete);
+
+        // Update local state
+        const updatedSessions = sessions.filter(s => s.id !== sessionToDelete);
+        setSessions(updatedSessions);
+
+        // If deleted active session, reset view
+        if (currentSession?.id === sessionToDelete) {
+          if (updatedSessions.length > 0) {
+            handleSelectSession(updatedSessions[0]);
+          } else {
+            handleNewChat();
+          }
+        }
+        setShowDeleteConfirm(false);
+        setSessionToDelete(null);
+      } catch (e) {
+        console.error("Failed to delete session:", e);
+        setDbError("대화 삭제 중 오류가 발생했습니다.");
+      }
+    };
+
+    // --- Render ---
+
+    if (appState === 'LOGIN') {
+      return <LoginScreen onLogin={handleLogin} />;
+    }
+    if (appState === 'ONBOARDING') {
+      return (
+        <Onboarding
+          initialName={session?.user?.user_metadata?.full_name || ''}
+          onComplete={handleOnboardingComplete}
+          onLogout={handleLogout}
+        />
       );
-
-      // Save AI message to DB after streaming completes
-      if (activeSessionId) {
-        const finalAiMsg: Message = {
-          id: aiMsgId,
-          role: Role.MODEL,
-          content: finalContent,
-          timestamp: new Date(),
-          isStreaming: false
-        };
-        await dbService.saveMessage(activeSessionId, finalAiMsg);
-      }
-
-    } catch (error) {
-      console.error(error);
-      setMessages(prev => prev.map(msg =>
-        msg.id === aiMsgId
-          ? { ...msg, content: "**오류가 발생했습니다.** 잠시 후 다시 시도해 주세요." }
-          : msg
-      ));
-    } finally {
-      setIsLoading(false);
-      setMessages(prev => prev.map(msg =>
-        msg.id === aiMsgId
-          ? { ...msg, isStreaming: false }
-          : msg
-      ));
     }
-  };
 
-  // --- Library Handlers ---
-  const handleUpdateReview = (bookId: string, text: string) => {
-    setCompletedBooks(prev => prev.map(b => b.id === bookId ? { ...b, review: text } : b));
-    if (viewingBook?.id === bookId) {
-      setViewingBook(prev => prev ? { ...prev, review: text } : null);
-    }
-  };
-
-  const handleToggleShare = (bookId: string) => {
-    const targetBook = completedBooks.find(b => b.id === bookId);
-    if (!targetBook) return;
-
-    const newStatus = !targetBook.isShared;
-    setCompletedBooks(prev => prev.map(b => b.id === bookId ? { ...b, isShared: newStatus } : b));
-    if (viewingBook?.id === bookId) {
-      setViewingBook(prev => prev ? { ...prev, isShared: newStatus } : null);
-    }
-  };
-
-  const handleLikePost = (postId: string) => {
-    setCommunityPosts(prev => prev.map(p => {
-      if (p.id === postId) {
-        return { ...p, likes: p.isLiked ? p.likes - 1 : p.likes + 1, isLiked: !p.isLiked };
-      }
-      return p;
-    }));
-  };
-
-  const handleDeleteAccount = async () => {
-    if (!session?.user) return;
-    try {
-      await dbService.deleteUserProfile(session.user.id);
-      await handleLogout();
-      alert('계정이 초기화되었습니다.');
-    } catch (error) {
-      console.error("Account deletion failed:", error);
-      alert('계정 삭제 중 오류가 발생했습니다.');
-    }
-  };
-
-  const handleDeleteSession = (sessionId: string) => {
-    setSessionToDelete(sessionId);
-    setShowDeleteConfirm(true);
-  };
-
-  const confirmDeleteSession = async () => {
-    if (!sessionToDelete) return;
-    try {
-      await dbService.deleteSession(sessionToDelete);
-
-      // Update local state
-      const updatedSessions = sessions.filter(s => s.id !== sessionToDelete);
-      setSessions(updatedSessions);
-
-      // If deleted active session, reset view
-      if (currentSession?.id === sessionToDelete) {
-        if (updatedSessions.length > 0) {
-          handleSelectSession(updatedSessions[0]);
-        } else {
-          handleNewChat();
-        }
-      }
-      setShowDeleteConfirm(false);
-      setSessionToDelete(null);
-    } catch (e) {
-      console.error("Failed to delete session:", e);
-      setDbError("대화 삭제 중 오류가 발생했습니다.");
-    }
-  };
-
-  // --- Render ---
-
-  if (appState === 'LOGIN') {
-    return <LoginScreen onLogin={handleLogin} />;
-  }
-  if (appState === 'ONBOARDING') {
-    return (
-      <Onboarding
-        initialName={session?.user?.user_metadata?.full_name || ''}
-        onComplete={handleOnboardingComplete}
+    // Helper render for MyPageModal
+    const renderMyPage = () => (
+      <MyPageModal
+        userName={userName}
+        userProfile={userProfile}
+        completedBooksCount={completedBooks.length}
+        messageCount={messageCount}
         onLogout={handleLogout}
+        onDeleteAccount={handleDeleteAccount}
+        onClose={() => setShowMyPage(false)}
       />
     );
-  }
-
-  // Helper render for MyPageModal
-  const renderMyPage = () => (
-    <MyPageModal
-      userName={userName}
-      userProfile={userProfile}
-      completedBooksCount={completedBooks.length}
-      messageCount={messageCount}
-      onLogout={handleLogout}
-      onDeleteAccount={handleDeleteAccount}
-      onClose={() => setShowMyPage(false)}
-    />
-  );
 
 
 
-  return (
-    <div className="flex h-screen bg-sage-100 font-sans overflow-hidden text-sage-900">
+    return (
+      <div className="flex h-screen bg-sage-100 font-sans overflow-hidden text-sage-900">
 
-      {/* Modals */}
-      {showDeleteConfirm && (
-        <DeleteConfirmModal
-          onConfirm={confirmDeleteSession}
-          onClose={() => { setShowDeleteConfirm(false); setSessionToDelete(null); }}
-        />
-      )}
-      {showFinishConfirm && (
-        <FinishConfirmModal
-          onConfirm={handleConfirmFinish}
-          onClose={() => setShowFinishConfirm(false)}
-        />
-      )}
-      {showLibrary && (
-        <LibraryModal
-          onClose={() => { setShowLibrary(false); setViewingBook(null); }}
-          completedBooks={completedBooks}
-          viewingBook={viewingBook}
-          setViewingBook={setViewingBook}
-          libraryTab={libraryTab}
-          setLibraryTab={setLibraryTab}
-          userName={userName}
-          communityPosts={communityPosts}
-          handleUpdateReview={handleUpdateReview}
-          handleToggleShare={handleToggleShare}
-          handleLikePost={handleLikePost}
-        />
-      )}
-      {showMyPage && (
-        <MyPageModal
-          userName={userName}
-          userProfile={userProfile}
-          completedBooksCount={completedBooks.length}
-          messageCount={messages.length}
-          onLogout={handleLogout}
-          onClose={() => setShowMyPage(false)}
-        />
-      )}
-
-      {/* Sidebar (Desktop) */}
-      <aside className={`hidden md:flex flex-col w-72 bg-sage-50 border-r border-sage-200 h-full transition-all duration-500`}>
-        <SidebarContent
-          currentBook={currentBook}
-          sessions={sessions}
-          currentSessionId={currentSession?.id}
-          userName={userName}
-          handleNewChat={handleNewChat}
-          handleSelectSession={handleSelectSession}
-          handleDeleteSession={handleDeleteSession}
-          handleRequestFinish={handleRequestFinish}
-          setShowMyPage={setShowMyPage}
-        />
-      </aside>
-
-      {/* Mobile Sidebar */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 flex md:hidden">
-          <div
-            className="fixed inset-0 bg-sage-900/20 backdrop-blur-sm transition-opacity"
-            onClick={() => setIsMobileMenuOpen(false)}
+        {/* Modals */}
+        {showDeleteConfirm && (
+          <DeleteConfirmModal
+            onConfirm={confirmDeleteSession}
+            onClose={() => { setShowDeleteConfirm(false); setSessionToDelete(null); }}
           />
-          <aside className="relative w-72 h-full bg-sage-50 flex flex-col shadow-2xl animate-slide-in-left">
-            <button
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute top-4 right-4 p-2 text-sage-400 hover:text-sage-600 z-50"
-            >
-              <PlusIcon className="w-6 h-6 rotate-45" />
-            </button>
-            <SidebarContent
-              currentBook={currentBook}
-              sessions={sessions}
-              currentSessionId={currentSession?.id}
-              userName={userName}
-              handleNewChat={handleNewChat}
-              handleSelectSession={handleSelectSession}
-              handleDeleteSession={handleDeleteSession}
-              handleRequestFinish={handleRequestFinish}
-              setShowMyPage={setShowMyPage}
-            />
-          </aside>
-        </div>
-      )}
+        )}
+        {showFinishConfirm && (
+          <FinishConfirmModal
+            onConfirm={handleConfirmFinish}
+            onClose={() => setShowFinishConfirm(false)}
+          />
+        )}
+        {showLibrary && (
+          <LibraryModal
+            onClose={() => { setShowLibrary(false); setViewingBook(null); }}
+            completedBooks={completedBooks}
+            viewingBook={viewingBook}
+            setViewingBook={setViewingBook}
+            libraryTab={libraryTab}
+            setLibraryTab={setLibraryTab}
+            userName={userName}
+            communityPosts={communityPosts}
+            handleUpdateReview={handleUpdateReview}
+            handleToggleShare={handleToggleShare}
+            handleLikePost={handleLikePost}
+          />
+        )}
+        {showMyPage && (
+          <MyPageModal
+            userName={userName}
+            userProfile={userProfile}
+            completedBooksCount={completedBooks.length}
+            messageCount={messages.length}
+            onLogout={handleLogout}
+            onClose={() => setShowMyPage(false)}
+          />
+        )}
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full relative">
-        {dbError && (
-          <div className="absolute top-20 left-4 right-4 z-50 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong className="font-bold">오류 발생: </strong>
-            <span className="block sm:inline">{dbError}</span>
-            <button onClick={() => setDbError(null)} className="absolute top-0 bottom-0 right-0 px-4 py-3">
-              <span className="text-xl">&times;</span>
-            </button>
+        {/* Sidebar (Desktop) */}
+        <aside className={`hidden md:flex flex-col w-72 bg-sage-50 border-r border-sage-200 h-full transition-all duration-500`}>
+          <SidebarContent
+            currentBook={currentBook}
+            sessions={sessions}
+            currentSessionId={currentSession?.id}
+            userName={userName}
+            handleNewChat={handleNewChat}
+            handleSelectSession={handleSelectSession}
+            handleDeleteSession={handleDeleteSession}
+            handleRequestFinish={handleRequestFinish}
+            setShowMyPage={setShowMyPage}
+          />
+        </aside>
+
+        {/* Mobile Sidebar */}
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-40 flex md:hidden">
+            <div
+              className="fixed inset-0 bg-sage-900/20 backdrop-blur-sm transition-opacity"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            <aside className="relative w-72 h-full bg-sage-50 flex flex-col shadow-2xl animate-slide-in-left">
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="absolute top-4 right-4 p-2 text-sage-400 hover:text-sage-600 z-50"
+              >
+                <PlusIcon className="w-6 h-6 rotate-45" />
+              </button>
+              <SidebarContent
+                currentBook={currentBook}
+                sessions={sessions}
+                currentSessionId={currentSession?.id}
+                userName={userName}
+                handleNewChat={handleNewChat}
+                handleSelectSession={handleSelectSession}
+                handleDeleteSession={handleDeleteSession}
+                handleRequestFinish={handleRequestFinish}
+                setShowMyPage={setShowMyPage}
+              />
+            </aside>
           </div>
         )}
 
-        {/* Header */}
-        <header className="flex items-center justify-between p-4 md:p-6 sticky top-0 z-10 bg-sage-100/95 backdrop-blur-sm">
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 -ml-2 text-sage-700 hover:bg-sage-200 rounded-lg transition-colors"
-            >
-              {currentBook ? (
-                <div
-                  className="w-8 h-10 rounded-sm shadow-sm border border-black/10"
-                  style={{ backgroundColor: currentBook.coverColor }}
-                />
-              ) : (
-                <MenuIcon className="w-6 h-6" />
-              )}
-            </button>
-          </div>
-
-          <div className="relative">
-            {currentBook ? (
-              <div className="flex flex-col items-center animate-fade-in">
-                <span className="text-xs font-bold text-sage-500 uppercase tracking-widest mb-0.5">Reading</span>
-                <span className="font-serif font-bold text-lg text-sage-900">{currentBook.title}</span>
-              </div>
-            ) : (
-              <span className="font-serif font-bold text-lg text-sage-800 tracking-tight">소원</span>
-            )}
-          </div>
-
-          <div className="w-10 flex justify-end">
-            <button
-              onClick={() => setShowLibrary(true)}
-              className="p-2 text-sage-600 hover:bg-sage-200 rounded-full transition-colors relative"
-              title="My Library"
-            >
-              <LibraryIcon className="w-6 h-6" />
-              {completedBooks.length > 0 && (
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-sage-500 rounded-full border-2 border-sage-100" />
-              )}
-            </button>
-          </div>
-        </header>
-
-        {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto px-4 md:px-0 scroll-smooth">
-          <div className="max-w-3xl mx-auto w-full pt-4 pb-32">
-
-            {/* Empty State */}
-            {messages.length === 0 && !currentBook && (
-              <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-8 animate-fade-in px-4">
-                <div className="p-2">
-                  <div className="text-6xl font-serif text-sage-200 mb-2">"</div>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-serif font-bold text-sage-800 mb-2">
-                    {userName ? `안녕하세요, ${userName}님.` : '안녕하세요, 소원입니다.'}
-                  </h2>
-                  <p className="text-sage-600 max-w-md mx-auto leading-relaxed">
-                    당신의 마음에 귀 기울이고, 책 속의 지혜로 위로를 건네드립니다.<br />
-                    오늘 어떤 기분이신가요?
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl">
-                  {INITIAL_SUGGESTIONS.map((suggestion, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleSend(suggestion)}
-                      className="p-4 bg-white/60 border border-sage-200 hover:border-sage-400 hover:bg-white rounded-xl text-left text-sm text-sage-700 transition-all shadow-sm hover:shadow-md"
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Messages */}
-            {messages.map((msg) => (
-              <MessageBubble
-                key={msg.id}
-                message={msg}
-                onBookSelect={handleBookSelect}
-              />
-            ))}
-
-            {/* Recommendation Chip */}
-            {!currentBook && messageCount >= 3 && messages.length > 0 && messages[messages.length - 1].role === Role.MODEL && !messages[messages.length - 1].isStreaming && (
-              <div className="flex justify-start mb-6 animate-fade-in">
-                <button
-                  onClick={() => handleSend("내 상황에 맞는 책을 추천해줄래? 한 권이나 세 권 정도 추천해주면 좋겠어.")}
-                  className="flex items-center gap-2 px-4 py-2 bg-sage-200/50 hover:bg-sage-200 text-sage-700 rounded-full text-sm font-medium transition-colors ml-2"
-                >
-                  <SparklesIcon className="w-4 h-4" />
-                  책 추천 받기
-                </button>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-        </div>
-
-        {/* Input Area */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-sage-100 via-sage-100 to-transparent pt-10 pb-2 z-20">
-          {currentBook && (
-            <div className="max-w-3xl mx-auto px-4 mb-2 flex justify-center">
-              <div className="bg-sage-800 text-white text-xs px-3 py-1 rounded-full shadow-lg opacity-80 flex items-center gap-2">
-                <span>Reading Mode On</span>
-                <span className="w-1 h-1 bg-white rounded-full"></span>
-                <span>{currentBook.title}</span>
-              </div>
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col h-full relative">
+          {dbError && (
+            <div className="absolute top-20 left-4 right-4 z-50 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <strong className="font-bold">오류 발생: </strong>
+              <span className="block sm:inline">{dbError}</span>
+              <button onClick={() => setDbError(null)} className="absolute top-0 bottom-0 right-0 px-4 py-3">
+                <span className="text-xl">&times;</span>
+              </button>
             </div>
           )}
-          <InputArea
-            value={inputValue}
-            onChange={setInputValue}
-            onSend={() => handleSend()}
-            isLoading={isLoading}
-          />
-        </div>
 
-      </main>
+          {/* Header */}
+          <header className="flex items-center justify-between p-4 md:p-6 sticky top-0 z-10 bg-sage-100/95 backdrop-blur-sm">
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="p-2 -ml-2 text-sage-700 hover:bg-sage-200 rounded-lg transition-colors"
+              >
+                {currentBook ? (
+                  <div
+                    className="w-8 h-10 rounded-sm shadow-sm border border-black/10"
+                    style={{ backgroundColor: currentBook.coverColor }}
+                  />
+                ) : (
+                  <MenuIcon className="w-6 h-6" />
+                )}
+              </button>
+            </div>
 
-      <style>{`
+            <div className="relative">
+              {currentBook ? (
+                <div className="flex flex-col items-center animate-fade-in">
+                  <span className="text-xs font-bold text-sage-500 uppercase tracking-widest mb-0.5">Reading</span>
+                  <span className="font-serif font-bold text-lg text-sage-900">{currentBook.title}</span>
+                </div>
+              ) : (
+                <span className="font-serif font-bold text-lg text-sage-800 tracking-tight">소원</span>
+              )}
+            </div>
+
+            <div className="w-10 flex justify-end">
+              <button
+                onClick={() => setShowLibrary(true)}
+                className="p-2 text-sage-600 hover:bg-sage-200 rounded-full transition-colors relative"
+                title="My Library"
+              >
+                <LibraryIcon className="w-6 h-6" />
+                {completedBooks.length > 0 && (
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-sage-500 rounded-full border-2 border-sage-100" />
+                )}
+              </button>
+            </div>
+          </header>
+
+          {/* Chat Area */}
+          <div className="flex-1 overflow-y-auto px-4 md:px-0 scroll-smooth">
+            <div className="max-w-3xl mx-auto w-full pt-4 pb-32">
+
+              {/* Empty State */}
+              {messages.length === 0 && !currentBook && (
+                <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-8 animate-fade-in px-4">
+                  <div className="p-2">
+                    <div className="text-6xl font-serif text-sage-200 mb-2">"</div>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-serif font-bold text-sage-800 mb-2">
+                      {userName ? `안녕하세요, ${userName}님.` : '안녕하세요, 소원입니다.'}
+                    </h2>
+                    <p className="text-sage-600 max-w-md mx-auto leading-relaxed">
+                      당신의 마음에 귀 기울이고, 책 속의 지혜로 위로를 건네드립니다.<br />
+                      오늘 어떤 기분이신가요?
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl">
+                    {INITIAL_SUGGESTIONS.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSend(suggestion)}
+                        className="p-4 bg-white/60 border border-sage-200 hover:border-sage-400 hover:bg-white rounded-xl text-left text-sm text-sage-700 transition-all shadow-sm hover:shadow-md"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Messages */}
+              {messages.map((msg) => (
+                <MessageBubble
+                  key={msg.id}
+                  message={msg}
+                  onBookSelect={handleBookSelect}
+                />
+              ))}
+
+              {/* Recommendation Chip */}
+              {!currentBook && messageCount >= 3 && messages.length > 0 && messages[messages.length - 1].role === Role.MODEL && !messages[messages.length - 1].isStreaming && (
+                <div className="flex justify-start mb-6 animate-fade-in">
+                  <button
+                    onClick={() => handleSend("내 상황에 맞는 책을 추천해줄래? 한 권이나 세 권 정도 추천해주면 좋겠어.")}
+                    className="flex items-center gap-2 px-4 py-2 bg-sage-200/50 hover:bg-sage-200 text-sage-700 rounded-full text-sm font-medium transition-colors ml-2"
+                  >
+                    <SparklesIcon className="w-4 h-4" />
+                    책 추천 받기
+                  </button>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+
+          {/* Input Area */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-sage-100 via-sage-100 to-transparent pt-10 pb-2 z-20">
+            {currentBook && (
+              <div className="max-w-3xl mx-auto px-4 mb-2 flex justify-center">
+                <div className="bg-sage-800 text-white text-xs px-3 py-1 rounded-full shadow-lg opacity-80 flex items-center gap-2">
+                  <span>Reading Mode On</span>
+                  <span className="w-1 h-1 bg-white rounded-full"></span>
+                  <span>{currentBook.title}</span>
+                </div>
+              </div>
+            )}
+            <InputArea
+              value={inputValue}
+              onChange={setInputValue}
+              onSend={() => handleSend()}
+              isLoading={isLoading}
+            />
+          </div>
+
+        </main>
+
+        <style>{`
         @keyframes slide-in-left {
             from { transform: translateX(-100%); }
             to { transform: translateX(0); }
@@ -1492,8 +1540,8 @@ const App: React.FC = () => {
         .animate-slide-in-right { animation: slide-in-right 0.3s ease-out; }
         .animate-fade-in { animation: fade-in 0.5s ease-out; }
       `}</style>
-    </div>
-  );
-};
+      </div>
+    );
+  };
 
-export default App;
+  export default App;
