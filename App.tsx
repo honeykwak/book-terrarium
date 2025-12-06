@@ -13,7 +13,7 @@ import { EmotionLineGraph, FocusDonutChart, KeywordBarChart } from './components
 import {
   MenuIcon, ChevronDownIcon, LeafIcon, LibraryIcon,
   PlusIcon, SparklesIcon, CheckCircleIcon, XIcon, UserIcon, LogOutIcon,
-  HeartIcon, ShareIcon, LockIcon, EditIcon, HistoryIcon, BrainIcon, TargetIcon, TrendingUpIcon
+  HeartIcon, ShareIcon, LockIcon, EditIcon, HistoryIcon, BrainIcon, TargetIcon, TrendingUpIcon, TrashIcon
 } from './components/Icon';
 import { INITIAL_SUGGESTIONS, COVER_COLORS } from './constants';
 
