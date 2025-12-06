@@ -528,7 +528,16 @@ const LibraryModal: React.FC<{
                     {completedBooks.map((book) => (
                       <button
                         key={book.id}
-                        onClick={() => { setViewingBook(book); setLibraryTab('REPORT'); }}
+                        onClick={async () => {
+                          setViewingBook(book);
+                          setLibraryTab('REPORT');
+                          try {
+                            const history = await dbService.getBookChatHistory(book.id);
+                            setViewingBook(prev => prev && prev.id === book.id ? { ...prev, chatHistory: history } : prev);
+                          } catch (e) {
+                            console.error("Failed to fetch book history:", e);
+                          }
+                        }}
                         className="group relative flex flex-col items-center text-left"
                       >
                         <div
