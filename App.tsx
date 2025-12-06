@@ -469,9 +469,20 @@ const LibraryModal: React.FC<{
                         className="group relative flex flex-col items-center text-left"
                       >
                         <div
-                          className="w-full aspect-[2/3] rounded-lg shadow-md mb-3 transition-transform group-hover:-translate-y-1 relative overflow-hidden"
-                          style={{ backgroundColor: book.coverColor }}
+                          className="w-full aspect-[2/3] rounded-lg shadow-md mb-3 transition-transform group-hover:-translate-y-1 relative overflow-hidden bg-gray-200"
+                          style={{ backgroundColor: book.coverUrl ? undefined : book.coverColor }}
                         >
+                          {book.coverUrl ? (
+                            <img
+                              src={book.coverUrl}
+                              alt={book.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            // No image fallback (Color only) is handled by parent style
+                            null
+                          )}
+
                           <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
                           {/* Minimal spine effect */}
                           <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-white/20" />
