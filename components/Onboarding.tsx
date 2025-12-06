@@ -113,10 +113,10 @@ const ProfileStep = ({ formData, setFormData }: { formData: any, setFormData: an
               <button
                 key={gender}
                 onClick={() => setFormData({ ...formData, gender })}
-                className={`flex - 1 py - 3 rounded - xl text - sm font - medium border transition - all ${formData.gender === gender
+                className={`flex-1 py-3 rounded-xl text-sm font-medium border transition-all ${formData.gender === gender
                   ? 'bg-sage-600 text-white border-sage-600'
                   : 'bg-white text-sage-600 border-sage-200 hover:bg-sage-50'
-                  } `}
+                  }`}
               >
                 {gender}
               </button>
@@ -211,10 +211,10 @@ const AlarmStep = ({ formData, setFormData }: { formData: any, setFormData: any 
             <button
               key={day}
               onClick={() => toggleDay(day)}
-              className={`w - 10 h - 10 rounded - full text - sm font - medium transition - all ${formData.alarmDays.includes(day)
+              className={`w-10 h-10 rounded-full text-sm font-medium transition-all ${formData.alarmDays.includes(day)
                 ? 'bg-sage-600 text-white shadow-md'
                 : 'bg-white text-sage-400 border border-sage-100 hover:border-sage-300'
-                } `}
+                }`}
             >
               {day}
             </button>
@@ -229,10 +229,10 @@ const AlarmStep = ({ formData, setFormData }: { formData: any, setFormData: any 
             <button
               key={time.id}
               onClick={() => toggleTime(time.id)}
-              className={`w - full p - 4 rounded - xl text - left transition - all border ${formData.alarmTimes.includes(time.id)
+              className={`w-full p-4 rounded-xl text-left transition-all border ${formData.alarmTimes.includes(time.id)
                 ? 'bg-sage-50 border-sage-400 ring-1 ring-sage-400 text-sage-900'
                 : 'bg-white border-sage-100 text-sage-500 hover:bg-sage-50'
-                } `}
+                }`}
             >
               <span className="font-medium">{time.label}</span>
             </button>
