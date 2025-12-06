@@ -732,7 +732,12 @@ const App: React.FC = () => {
         // age_group: data.ageGroup, // Removed as per new schema
         // interests: data.interests // Removed as per new schema
       });
-      setUserProfile(data);
+      setUserProfile({
+        ...data,
+        id: session.user.id,
+        email: session.user.email,
+        nickname: data.name
+      });
       setUserName(data.name);
       setAppState('MAIN');
     } catch (error) {
@@ -883,10 +888,11 @@ const App: React.FC = () => {
 
     // Ensure Session Exists
     let activeSessionId = currentSession?.id;
+    const userId = userProfile?.id || session?.user?.id;
 
-    if (!activeSessionId && userProfile) {
+    if (!activeSessionId && userId) {
       try {
-        const newSession = await dbService.createSession(userProfile.id);
+        const newSession = await dbService.createSession(userId);
         setCurrentSession(newSession);
         activeSessionId = newSession.id;
       } catch (e) {
