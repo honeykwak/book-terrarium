@@ -668,6 +668,10 @@ const App: React.FC = () => {
   const [dbError, setDbError] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<ModelType>(ModelType.FLASH);
 
+  // Delete Confirmation State (Moved to top)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+
   // Mobile Sidebar
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -1178,293 +1182,289 @@ const App: React.FC = () => {
       console.error("Account deletion failed:", error);
       alert('계정 삭제 중 오류가 발생했습니다.');
     }
-  };
+    const handleDeleteSession = (sessionId: string) => {
+      setSessionToDelete(sessionId);
+      setShowDeleteConfirm(true);
+    };
 
-  // --- Render ---
+    const confirmDeleteSession = async () => {
+      if (!sessionToDelete) return;
+      try {
+        await dbService.deleteSession(sessionToDelete);
 
-  if (appState === 'LOGIN') {
-    return <LoginScreen onLogin={handleLogin} />;
-  }
-  if (appState === 'ONBOARDING') {
-    return (
-      <Onboarding
-        initialName={session?.user?.user_metadata?.full_name || ''}
-        onComplete={handleOnboardingComplete}
+        // Update local state
+        const updatedSessions = sessions.filter(s => s.id !== sessionToDelete);
+        setSessions(updatedSessions);
+
+        // If deleted active session, reset view
+        if (currentSession?.id === sessionToDelete) {
+          if (updatedSessions.length > 0) {
+            handleSelectSession(updatedSessions[0]);
+          } else {
+            handleNewChat();
+          }
+        }
+        setShowDeleteConfirm(false);
+        setSessionToDelete(null);
+      } catch (e) {
+        console.error("Failed to delete session:", e);
+        setDbError("대화 삭제 중 오류가 발생했습니다.");
+      }
+    };
+
+    // --- Render ---
+
+    if (appState === 'LOGIN') {
+      return <LoginScreen onLogin={handleLogin} />;
+    }
+    if (appState === 'ONBOARDING') {
+      return (
+        <Onboarding
+          initialName={session?.user?.user_metadata?.full_name || ''}
+          onComplete={handleOnboardingComplete}
+          onLogout={handleLogout}
+        />
+      );
+    }
+
+    // Helper render for MyPageModal
+    const renderMyPage = () => (
+      <MyPageModal
+        userName={userName}
+        userProfile={userProfile}
+        completedBooksCount={completedBooks.length}
+        messageCount={messageCount}
         onLogout={handleLogout}
+        onDeleteAccount={handleDeleteAccount}
+        onClose={() => setShowMyPage(false)}
       />
     );
-  }
 
-  // Helper render for MyPageModal
-  const renderMyPage = () => (
-    <MyPageModal
-      userName={userName}
-      userProfile={userProfile}
-      completedBooksCount={completedBooks.length}
-      messageCount={messageCount}
-      onLogout={handleLogout}
-      onDeleteAccount={handleDeleteAccount}
-      onClose={() => setShowMyPage(false)}
-    />
-  );
 
-  // Delete Confirmation State
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
-  const handleDeleteSession = (sessionId: string) => {
-    setSessionToDelete(sessionId);
-    setShowDeleteConfirm(true);
-  };
+    return (
+      <div className="flex h-screen bg-sage-100 font-sans overflow-hidden text-sage-900">
 
-  const confirmDeleteSession = async () => {
-    if (!sessionToDelete) return;
-    try {
-      await dbService.deleteSession(sessionToDelete);
-
-      // Update local state
-      const updatedSessions = sessions.filter(s => s.id !== sessionToDelete);
-      setSessions(updatedSessions);
-
-      // If deleted active session, reset view
-      if (currentSession?.id === sessionToDelete) {
-        if (updatedSessions.length > 0) {
-          handleSelectSession(updatedSessions[0]);
-        } else {
-          handleNewChat();
-        }
-      }
-      setShowDeleteConfirm(false);
-      setSessionToDelete(null);
-    } catch (e) {
-      console.error("Failed to delete session:", e);
-      setDbError("대화 삭제 중 오류가 발생했습니다.");
-    }
-  };
-
-  return (
-    <div className="flex h-screen bg-sage-100 font-sans overflow-hidden text-sage-900">
-
-      {/* Modals */}
-      {showDeleteConfirm && (
-        <DeleteConfirmModal
-          onConfirm={confirmDeleteSession}
-          onClose={() => { setShowDeleteConfirm(false); setSessionToDelete(null); }}
-        />
-      )}
-      {showFinishConfirm && (
-        <FinishConfirmModal
-          onConfirm={handleConfirmFinish}
-          onClose={() => setShowFinishConfirm(false)}
-        />
-      )}
-      {showLibrary && (
-        <LibraryModal
-          onClose={() => { setShowLibrary(false); setViewingBook(null); }}
-          completedBooks={completedBooks}
-          viewingBook={viewingBook}
-          setViewingBook={setViewingBook}
-          libraryTab={libraryTab}
-          setLibraryTab={setLibraryTab}
-          userName={userName}
-          communityPosts={communityPosts}
-          handleUpdateReview={handleUpdateReview}
-          handleToggleShare={handleToggleShare}
-          handleLikePost={handleLikePost}
-        />
-      )}
-      {showMyPage && (
-        <MyPageModal
-          userName={userName}
-          userProfile={userProfile}
-          completedBooksCount={completedBooks.length}
-          messageCount={messages.length}
-          onLogout={handleLogout}
-          onClose={() => setShowMyPage(false)}
-        />
-      )}
-
-      {/* Sidebar (Desktop) */}
-      <aside className={`hidden md:flex flex-col w-72 bg-sage-50 border-r border-sage-200 h-full transition-all duration-500`}>
-        <SidebarContent
-          currentBook={currentBook}
-          sessions={sessions}
-          currentSessionId={currentSession?.id}
-          userName={userName}
-          handleNewChat={handleNewChat}
-          handleSelectSession={handleSelectSession}
-          handleDeleteSession={handleDeleteSession}
-          handleRequestFinish={handleRequestFinish}
-          setShowMyPage={setShowMyPage}
-        />
-      </aside>
-
-      {/* Mobile Sidebar */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 flex md:hidden">
-          <div
-            className="fixed inset-0 bg-sage-900/20 backdrop-blur-sm transition-opacity"
-            onClick={() => setIsMobileMenuOpen(false)}
+        {/* Modals */}
+        {showDeleteConfirm && (
+          <DeleteConfirmModal
+            onConfirm={confirmDeleteSession}
+            onClose={() => { setShowDeleteConfirm(false); setSessionToDelete(null); }}
           />
-          <aside className="relative w-72 h-full bg-sage-50 flex flex-col shadow-2xl animate-slide-in-left">
-            <button
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute top-4 right-4 p-2 text-sage-400 hover:text-sage-600 z-50"
-            >
-              <PlusIcon className="w-6 h-6 rotate-45" />
-            </button>
-            <SidebarContent
-              currentBook={currentBook}
-              sessions={sessions}
-              currentSessionId={currentSession?.id}
-              userName={userName}
-              handleNewChat={handleNewChat}
-              handleSelectSession={handleSelectSession}
-              handleDeleteSession={handleDeleteSession}
-              handleRequestFinish={handleRequestFinish}
-              setShowMyPage={setShowMyPage}
-            />
-          </aside>
-        </div>
-      )}
+        )}
+        {showFinishConfirm && (
+          <FinishConfirmModal
+            onConfirm={handleConfirmFinish}
+            onClose={() => setShowFinishConfirm(false)}
+          />
+        )}
+        {showLibrary && (
+          <LibraryModal
+            onClose={() => { setShowLibrary(false); setViewingBook(null); }}
+            completedBooks={completedBooks}
+            viewingBook={viewingBook}
+            setViewingBook={setViewingBook}
+            libraryTab={libraryTab}
+            setLibraryTab={setLibraryTab}
+            userName={userName}
+            communityPosts={communityPosts}
+            handleUpdateReview={handleUpdateReview}
+            handleToggleShare={handleToggleShare}
+            handleLikePost={handleLikePost}
+          />
+        )}
+        {showMyPage && (
+          <MyPageModal
+            userName={userName}
+            userProfile={userProfile}
+            completedBooksCount={completedBooks.length}
+            messageCount={messages.length}
+            onLogout={handleLogout}
+            onClose={() => setShowMyPage(false)}
+          />
+        )}
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full relative">
-        {dbError && (
-          <div className="absolute top-20 left-4 right-4 z-50 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong className="font-bold">오류 발생: </strong>
-            <span className="block sm:inline">{dbError}</span>
-            <button onClick={() => setDbError(null)} className="absolute top-0 bottom-0 right-0 px-4 py-3">
-              <span className="text-xl">&times;</span>
-            </button>
+        {/* Sidebar (Desktop) */}
+        <aside className={`hidden md:flex flex-col w-72 bg-sage-50 border-r border-sage-200 h-full transition-all duration-500`}>
+          <SidebarContent
+            currentBook={currentBook}
+            sessions={sessions}
+            currentSessionId={currentSession?.id}
+            userName={userName}
+            handleNewChat={handleNewChat}
+            handleSelectSession={handleSelectSession}
+            handleDeleteSession={handleDeleteSession}
+            handleRequestFinish={handleRequestFinish}
+            setShowMyPage={setShowMyPage}
+          />
+        </aside>
+
+        {/* Mobile Sidebar */}
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-40 flex md:hidden">
+            <div
+              className="fixed inset-0 bg-sage-900/20 backdrop-blur-sm transition-opacity"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            <aside className="relative w-72 h-full bg-sage-50 flex flex-col shadow-2xl animate-slide-in-left">
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="absolute top-4 right-4 p-2 text-sage-400 hover:text-sage-600 z-50"
+              >
+                <PlusIcon className="w-6 h-6 rotate-45" />
+              </button>
+              <SidebarContent
+                currentBook={currentBook}
+                sessions={sessions}
+                currentSessionId={currentSession?.id}
+                userName={userName}
+                handleNewChat={handleNewChat}
+                handleSelectSession={handleSelectSession}
+                handleDeleteSession={handleDeleteSession}
+                handleRequestFinish={handleRequestFinish}
+                setShowMyPage={setShowMyPage}
+              />
+            </aside>
           </div>
         )}
 
-        {/* Header */}
-        <header className="flex items-center justify-between p-4 md:p-6 sticky top-0 z-10 bg-sage-100/95 backdrop-blur-sm">
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 -ml-2 text-sage-700 hover:bg-sage-200 rounded-lg transition-colors"
-            >
-              {currentBook ? (
-                <div
-                  className="w-8 h-10 rounded-sm shadow-sm border border-black/10"
-                  style={{ backgroundColor: currentBook.coverColor }}
-                />
-              ) : (
-                <MenuIcon className="w-6 h-6" />
-              )}
-            </button>
-          </div>
-
-          <div className="relative">
-            {currentBook ? (
-              <div className="flex flex-col items-center animate-fade-in">
-                <span className="text-xs font-bold text-sage-500 uppercase tracking-widest mb-0.5">Reading</span>
-                <span className="font-serif font-bold text-lg text-sage-900">{currentBook.title}</span>
-              </div>
-            ) : (
-              <span className="font-serif font-bold text-lg text-sage-800 tracking-tight">소원</span>
-            )}
-          </div>
-
-          <div className="w-10 flex justify-end">
-            <button
-              onClick={() => setShowLibrary(true)}
-              className="p-2 text-sage-600 hover:bg-sage-200 rounded-full transition-colors relative"
-              title="My Library"
-            >
-              <LibraryIcon className="w-6 h-6" />
-              {completedBooks.length > 0 && (
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-sage-500 rounded-full border-2 border-sage-100" />
-              )}
-            </button>
-          </div>
-        </header>
-
-        {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto px-4 md:px-0 scroll-smooth">
-          <div className="max-w-3xl mx-auto w-full pt-4 pb-32">
-
-            {/* Empty State */}
-            {messages.length === 0 && !currentBook && (
-              <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-8 animate-fade-in px-4">
-                <div className="p-2">
-                  <div className="text-6xl font-serif text-sage-200 mb-2">"</div>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-serif font-bold text-sage-800 mb-2">
-                    {userName ? `안녕하세요, ${userName}님.` : '안녕하세요, 소원입니다.'}
-                  </h2>
-                  <p className="text-sage-600 max-w-md mx-auto leading-relaxed">
-                    당신의 마음에 귀 기울이고, 책 속의 지혜로 위로를 건네드립니다.<br />
-                    오늘 어떤 기분이신가요?
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl">
-                  {INITIAL_SUGGESTIONS.map((suggestion, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleSend(suggestion)}
-                      className="p-4 bg-white/60 border border-sage-200 hover:border-sage-400 hover:bg-white rounded-xl text-left text-sm text-sage-700 transition-all shadow-sm hover:shadow-md"
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Messages */}
-            {messages.map((msg) => (
-              <MessageBubble
-                key={msg.id}
-                message={msg}
-                onBookSelect={handleBookSelect}
-              />
-            ))}
-
-            {/* Recommendation Chip */}
-            {!currentBook && messageCount >= 3 && messages.length > 0 && messages[messages.length - 1].role === Role.MODEL && !messages[messages.length - 1].isStreaming && (
-              <div className="flex justify-start mb-6 animate-fade-in">
-                <button
-                  onClick={() => handleSend("내 상황에 맞는 책을 추천해줄래? 한 권이나 세 권 정도 추천해주면 좋겠어.")}
-                  className="flex items-center gap-2 px-4 py-2 bg-sage-200/50 hover:bg-sage-200 text-sage-700 rounded-full text-sm font-medium transition-colors ml-2"
-                >
-                  <SparklesIcon className="w-4 h-4" />
-                  책 추천 받기
-                </button>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-        </div>
-
-        {/* Input Area */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-sage-100 via-sage-100 to-transparent pt-10 pb-2 z-20">
-          {currentBook && (
-            <div className="max-w-3xl mx-auto px-4 mb-2 flex justify-center">
-              <div className="bg-sage-800 text-white text-xs px-3 py-1 rounded-full shadow-lg opacity-80 flex items-center gap-2">
-                <span>Reading Mode On</span>
-                <span className="w-1 h-1 bg-white rounded-full"></span>
-                <span>{currentBook.title}</span>
-              </div>
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col h-full relative">
+          {dbError && (
+            <div className="absolute top-20 left-4 right-4 z-50 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <strong className="font-bold">오류 발생: </strong>
+              <span className="block sm:inline">{dbError}</span>
+              <button onClick={() => setDbError(null)} className="absolute top-0 bottom-0 right-0 px-4 py-3">
+                <span className="text-xl">&times;</span>
+              </button>
             </div>
           )}
-          <InputArea
-            value={inputValue}
-            onChange={setInputValue}
-            onSend={() => handleSend()}
-            isLoading={isLoading}
-          />
-        </div>
 
-      </main>
+          {/* Header */}
+          <header className="flex items-center justify-between p-4 md:p-6 sticky top-0 z-10 bg-sage-100/95 backdrop-blur-sm">
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="p-2 -ml-2 text-sage-700 hover:bg-sage-200 rounded-lg transition-colors"
+              >
+                {currentBook ? (
+                  <div
+                    className="w-8 h-10 rounded-sm shadow-sm border border-black/10"
+                    style={{ backgroundColor: currentBook.coverColor }}
+                  />
+                ) : (
+                  <MenuIcon className="w-6 h-6" />
+                )}
+              </button>
+            </div>
 
-      <style>{`
+            <div className="relative">
+              {currentBook ? (
+                <div className="flex flex-col items-center animate-fade-in">
+                  <span className="text-xs font-bold text-sage-500 uppercase tracking-widest mb-0.5">Reading</span>
+                  <span className="font-serif font-bold text-lg text-sage-900">{currentBook.title}</span>
+                </div>
+              ) : (
+                <span className="font-serif font-bold text-lg text-sage-800 tracking-tight">소원</span>
+              )}
+            </div>
+
+            <div className="w-10 flex justify-end">
+              <button
+                onClick={() => setShowLibrary(true)}
+                className="p-2 text-sage-600 hover:bg-sage-200 rounded-full transition-colors relative"
+                title="My Library"
+              >
+                <LibraryIcon className="w-6 h-6" />
+                {completedBooks.length > 0 && (
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-sage-500 rounded-full border-2 border-sage-100" />
+                )}
+              </button>
+            </div>
+          </header>
+
+          {/* Chat Area */}
+          <div className="flex-1 overflow-y-auto px-4 md:px-0 scroll-smooth">
+            <div className="max-w-3xl mx-auto w-full pt-4 pb-32">
+
+              {/* Empty State */}
+              {messages.length === 0 && !currentBook && (
+                <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-8 animate-fade-in px-4">
+                  <div className="p-2">
+                    <div className="text-6xl font-serif text-sage-200 mb-2">"</div>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-serif font-bold text-sage-800 mb-2">
+                      {userName ? `안녕하세요, ${userName}님.` : '안녕하세요, 소원입니다.'}
+                    </h2>
+                    <p className="text-sage-600 max-w-md mx-auto leading-relaxed">
+                      당신의 마음에 귀 기울이고, 책 속의 지혜로 위로를 건네드립니다.<br />
+                      오늘 어떤 기분이신가요?
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl">
+                    {INITIAL_SUGGESTIONS.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSend(suggestion)}
+                        className="p-4 bg-white/60 border border-sage-200 hover:border-sage-400 hover:bg-white rounded-xl text-left text-sm text-sage-700 transition-all shadow-sm hover:shadow-md"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Messages */}
+              {messages.map((msg) => (
+                <MessageBubble
+                  key={msg.id}
+                  message={msg}
+                  onBookSelect={handleBookSelect}
+                />
+              ))}
+
+              {/* Recommendation Chip */}
+              {!currentBook && messageCount >= 3 && messages.length > 0 && messages[messages.length - 1].role === Role.MODEL && !messages[messages.length - 1].isStreaming && (
+                <div className="flex justify-start mb-6 animate-fade-in">
+                  <button
+                    onClick={() => handleSend("내 상황에 맞는 책을 추천해줄래? 한 권이나 세 권 정도 추천해주면 좋겠어.")}
+                    className="flex items-center gap-2 px-4 py-2 bg-sage-200/50 hover:bg-sage-200 text-sage-700 rounded-full text-sm font-medium transition-colors ml-2"
+                  >
+                    <SparklesIcon className="w-4 h-4" />
+                    책 추천 받기
+                  </button>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+
+          {/* Input Area */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-sage-100 via-sage-100 to-transparent pt-10 pb-2 z-20">
+            {currentBook && (
+              <div className="max-w-3xl mx-auto px-4 mb-2 flex justify-center">
+                <div className="bg-sage-800 text-white text-xs px-3 py-1 rounded-full shadow-lg opacity-80 flex items-center gap-2">
+                  <span>Reading Mode On</span>
+                  <span className="w-1 h-1 bg-white rounded-full"></span>
+                  <span>{currentBook.title}</span>
+                </div>
+              </div>
+            )}
+            <InputArea
+              value={inputValue}
+              onChange={setInputValue}
+              onSend={() => handleSend()}
+              isLoading={isLoading}
+            />
+          </div>
+
+        </main>
+
+        <style>{`
         @keyframes slide-in-left {
             from { transform: translateX(-100%); }
             to { transform: translateX(0); }
@@ -1481,8 +1481,8 @@ const App: React.FC = () => {
         .animate-slide-in-right { animation: slide-in-right 0.3s ease-out; }
         .animate-fade-in { animation: fade-in 0.5s ease-out; }
       `}</style>
-    </div>
-  );
-};
+      </div>
+    );
+  };
 
-export default App;
+  export default App;
