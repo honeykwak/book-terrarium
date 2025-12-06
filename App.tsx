@@ -990,6 +990,8 @@ const App: React.FC = () => {
 
   const handleBookSelect = async (book: Book) => {
     if (!session?.user) return;
+
+    resetChat(); // Clear previous AI session memory to ensure new context for this book
     setIsLoading(true);
 
     try {
@@ -1041,6 +1043,7 @@ const App: React.FC = () => {
   };
 
   const handleSelectSession = async (session: ChatSession) => {
+    resetChat(); // Clear previous AI session memory
     setCurrentSession(session);
     setIsLoading(true);
     try {
