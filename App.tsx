@@ -731,6 +731,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [loadingText, setLoadingText] = useState('');
   const [dbError, setDbError] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<ModelType>(ModelType.FLASH);
@@ -758,6 +759,7 @@ const App: React.FC = () => {
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -985,6 +987,9 @@ const App: React.FC = () => {
     }
   };
 
+
+
+
   const handleBookSelect = async (book: Book) => {
     if (!session?.user) return;
 
@@ -1067,61 +1072,163 @@ const App: React.FC = () => {
     }
   };
 
+  const handleStopGeneration = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+      setIsStreaming(false);
+      setLoadingText('');
+      // Update UI to show it stopped?
+      setMessages(prev => {
+        const last = prev[prev.length - 1];
+        if (last && last.isStreaming) {
+          return prev.map((m, i) => i === prev.length - 1 ? { ...m, isStreaming: false, content: m.content + " (중단됨)" } : m);
+        }
+        return prev;
+      });
+    }
+  };
+
+  const handleRegenerate = async () => {
+    const lastUserMsgIndex = messages.findLastIndex(m => m.role === Role.USER);
+    if (lastUserMsgIndex === -1) return;
+
+    const lastUserMsg = messages[lastUserMsgIndex];
+
+    // Truncate to BEFORE the last user message
+    const historyBefore = messages.slice(0, lastUserMsgIndex);
+    setMessages(historyBefore);
+    // Re-send
+    handleSend(lastUserMsg.content, true); // true = hiddenPrompt? No, we want to re-send as if user typed it.
+    // Actually handleSend adds the user message again. So we just pass text.
+  };
+
+  const handleStartEdit = (message: Message) => {
+    setInputValue(message.content);
+    const msgIndex = messages.findIndex(m => m.id === message.id);
+    if (msgIndex !== -1) {
+      // Keep messages BEFORE this one
+      setMessages(messages.slice(0, msgIndex));
+    }
+    setTimeout(() => {
+      const input = document.querySelector('textarea') as HTMLTextAreaElement;
+      input?.focus();
+    }, 100);
+  };
+
   const handleSend = async (text: string = inputValue, isHiddenPrompt: boolean = false) => {
+    const activeSessionId = currentSession?.id;
     if ((!text.trim() && !isHiddenPrompt) || isLoading) return;
 
-    let displayMsg: Message | null = null;
-    let activeSessionId = currentSession?.id;
-    const userId = userProfile?.id || session?.user?.id;
+    // Reset AbortController
+    if (abortControllerRef.current) abortControllerRef.current.abort();
+    const ac = new AbortController();
+    abortControllerRef.current = ac;
 
-    // Create session if needed
-    if (!activeSessionId && userId) {
-      try {
-        const newSession = await dbService.createSession(userId);
-        setCurrentSession(newSession);
-        activeSessionId = newSession.id;
-        // Refresh sidebar list to show new session
-        const updatedSessions = await dbService.getUserSessions(userId);
-        setSessions(updatedSessions);
-      } catch (e) {
-        console.error("Failed to create session:", e);
-        setDbError("채팅 세션을 생성할 수 없습니다. 데이터베이스 권한을 확인해주세요. (403 Error)");
-        return;
-      }
-    }
-
-    if (!activeSessionId) {
-      console.error("No active session to send message.");
-      setDbError("활성 세션이 없습니다. 새로고침 후 다시 시도해주세요.");
-      return;
-    }
+    const userMessage: Message = {
+      id: crypto.randomUUID(),
+      role: Role.USER,
+      content: text,
+      timestamp: new Date()
+    };
 
     if (!isHiddenPrompt) {
-      const userMsgId = Date.now().toString();
-      displayMsg = {
-        id: userMsgId,
-        role: Role.USER,
-        content: text,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, displayMsg!]);
-
-      // Save user message to DB
-      await dbService.saveMessage(activeSessionId, displayMsg!);
-
+      setMessages(prev => [...prev, userMessage]);
       setInputValue('');
       setMessageCount(prev => prev + 1);
     }
+
+    // Save User Message to DB
+    if (activeSessionId && !isHiddenPrompt) {
+      await dbService.saveMessage(activeSessionId, userMessage);
+    }
+
+    // AI Placeholder
+    setIsLoading(true);
+    setIsStreaming(true);
+    setLoadingText('AI가 답변을 생각하는 중...');
+
+    const aiMsgId = (Date.now() + 1).toString();
+    const aiPlaceholder: Message = {
+      id: aiMsgId,
+      role: Role.MODEL,
+      content: '',
+      isStreaming: true,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, aiPlaceholder]);
+
+    try {
+      // Context Injection
+      const contentToSend = currentBook
+        ? `[System Note: User is currently reading '${currentBook.title}'. Ensure all responses are deeply grounded in this book's context unless explicitly asked otherwise.]\n\n${text}`
+        : text;
+
+      // Note: geminiService.sendMessageStream(text, history, modelId, callback)
+      const finalContent = await sendMessageStream(
+        contentToSend,
+        messages,
+        selectedModel,
+        (streamedText) => {
+          if (ac.signal.aborted) return;
+          setMessages(prev => prev.map(msg =>
+            msg.id === aiMsgId
+              ? { ...msg, content: streamedText, isStreaming: true }
+              : msg
+          ));
+        }
+      );
+
+      // Final check if aborted
+      if (ac.signal.aborted) {
+        return;
+      }
+
+      // Save AI message to DB after streaming completes
+      if (activeSessionId) {
+        const finalAiMsg: Message = {
+          id: aiMsgId,
+          role: Role.MODEL,
+          content: finalContent,
+          timestamp: new Date(),
+          isStreaming: false
+        };
+        await dbService.saveMessage(activeSessionId, finalAiMsg);
+      }
+
+    } catch (error) {
+      if (ac.signal.aborted) {
+        console.log("Stream aborted.");
+        setMessages(prev => prev.map(msg =>
+          msg.id === aiMsgId
+            ? { ...msg, content: msg.content + " (중단됨)", isStreaming: false }
+            : msg
+        ));
+      } else {
+        console.error(error);
+        setMessages(prev => prev.map(msg =>
+          msg.id === aiMsgId
+            ? { ...msg, content: "**오류가 발생했습니다.** 잠시 후 다시 시도해 주세요.", isStreaming: false }
+            : msg
+        ));
+      }
+    } finally {
+      setIsLoading(false);
+      setIsStreaming(false);
+      setLoadingText('');
+      abortControllerRef.current = null;
+      setMessages(prev => prev.map(msg =>
+        msg.id === aiMsgId
+          ? { ...msg, isStreaming: false }
+          : msg
+      ));
+    }
+
     // --- TRIGGER: Real Book Recommendation ---
-    // Only trigger if NOT currently reading a book, to avoid interruption when asking "Why did you recommend this?"
     if ((text.includes("추천") || text.includes("recommend")) && !currentBook) {
       setIsLoading(true);
 
       try {
-        // 1. Ask Gemini for book titles based on user context
-        // We use a separate non-streaming call or just a new stream for this hidden step.
-        // For simplicity, we'll use the existing stream function but ignore the stream and just get the final text.
-        // We construct a prompt to get JSON output.
         const recommendationPrompt = `
                     User input: "${text}"
                     ${currentBook ? `Context: User is currently reading '${currentBook.title}'. The recommendation should be relevant to this setting or request.` : ''}
@@ -1138,7 +1245,6 @@ const App: React.FC = () => {
           (chunk) => { jsonString += chunk; }
         );
 
-        // Clean up markdown code blocks if present
         jsonString = jsonString.replace(/```json/g, '').replace(/```/g, '').trim();
 
         let titles: string[] = [];
@@ -1146,20 +1252,17 @@ const App: React.FC = () => {
           titles = JSON.parse(jsonString);
         } catch (e) {
           console.error("Failed to parse book titles from AI:", jsonString);
-          // Fallback: Search for the user's text directly
           titles = [text];
         }
 
-        // 2. Fetch details from Google Books API
         const recommendedBooks: Book[] = [];
         for (const title of titles) {
           const results = await searchBooks(title);
           if (results.length > 0) {
-            recommendedBooks.push(results[0]); // Take the best match
+            recommendedBooks.push(results[0]);
           }
         }
 
-        // 3. Create the recommendation message
         const recMsg: Message = {
           id: (Date.now() + 1).toString(),
           role: Role.MODEL,
@@ -1170,14 +1273,12 @@ const App: React.FC = () => {
 
         setMessages(prev => [...prev, recMsg]);
 
-        // Save to DB
         if (activeSessionId) {
           await dbService.saveMessage(activeSessionId, recMsg);
         }
 
       } catch (error) {
         console.error("Error getting recommendations:", error);
-        // Fallback message
         const errorMsg: Message = {
           id: Date.now().toString(),
           role: Role.MODEL,
@@ -1188,69 +1289,12 @@ const App: React.FC = () => {
       } finally {
         setIsLoading(false);
       }
-      return;
-    }
-
-
-    setIsLoading(true);
-
-    const aiMsgId = (Date.now() + 1).toString();
-    const aiPlaceholder: Message = {
-      id: aiMsgId,
-      role: Role.MODEL,
-      content: '',
-      isStreaming: true,
-      timestamp: new Date()
-    };
-    setMessages(prev => [...prev, aiPlaceholder]);
-
-    try {
-      // Context Injection: If reading a book, remind AI of the context invisibly
-      const contentToSend = currentBook
-        ? `[System Note: User is currently reading '${currentBook.title}'. Ensure all responses are deeply grounded in this book's context unless explicitly asked otherwise.]\n\n${text}`
-        : text;
-
-      const finalContent = await sendMessageStream(
-        contentToSend,
-        messages,
-        selectedModel,
-        (streamedText) => {
-          setMessages(prev => prev.map(msg =>
-            msg.id === aiMsgId
-              ? { ...msg, content: streamedText }
-              : msg
-          ));
-        }
-      );
-
-      // Save AI message to DB after streaming completes
-      if (activeSessionId) {
-        const finalAiMsg: Message = {
-          id: aiMsgId,
-          role: Role.MODEL,
-          content: finalContent,
-          timestamp: new Date(),
-          isStreaming: false
-        };
-        await dbService.saveMessage(activeSessionId, finalAiMsg);
-      }
-
-    } catch (error) {
-      console.error(error);
-      setMessages(prev => prev.map(msg =>
-        msg.id === aiMsgId
-          ? { ...msg, content: "**오류가 발생했습니다.** 잠시 후 다시 시도해 주세요." }
-          : msg
-      ));
-    } finally {
-      setIsLoading(false);
-      setMessages(prev => prev.map(msg =>
-        msg.id === aiMsgId
-          ? { ...msg, isStreaming: false }
-          : msg
-      ));
     }
   };
+
+
+
+
 
   // --- Library Handlers ---
   const handleUpdateReview = (bookId: string, text: string) => {
@@ -1561,11 +1605,16 @@ const App: React.FC = () => {
             )}
 
             {/* Messages */}
-            {messages.map((msg) => (
+            {messages.map((msg, index) => (
               <MessageBubble
                 key={msg.id}
                 message={msg}
-                onBookSelect={handleBookSelect}
+                onBookSelect={(book) => {
+                  handleBookSelect(book);
+                }}
+                onRegenerate={index === messages.length - 1 && msg.role === Role.MODEL ? handleRegenerate : undefined}
+                onEdit={() => handleStartEdit(msg)}
+                onStop={msg.isStreaming ? handleStopGeneration : undefined}
               />
             ))}
 

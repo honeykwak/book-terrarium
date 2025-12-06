@@ -1,5 +1,9 @@
-
 import React from 'react';
+import {
+  MenuIcon, ChevronDownIcon, LeafIcon, LibraryIcon,
+  PlusIcon, SparklesIcon, CheckCircleIcon, XIcon, UserIcon, LogOutIcon, SpinnerIcon,
+  HeartIcon, ShareIcon, LockIcon, EditIcon, HistoryIcon, BrainIcon, TargetIcon, TrendingUpIcon, TrashIcon, RefreshIcon, StopIcon
+} from '../components/Icon';
 import { Message, Role, Book } from '../types';
 import MarkdownRenderer from './MarkdownRenderer';
 import BookRecommendation from './BookRecommendation';
@@ -7,9 +11,12 @@ import BookRecommendation from './BookRecommendation';
 interface Props {
   message: Message;
   onBookSelect?: (book: Book) => void;
+  onRegenerate?: () => void;
+  onEdit?: () => void;
+  onStop?: () => void;
 }
 
-const MessageBubble: React.FC<Props> = ({ message, onBookSelect }) => {
+const MessageBubble: React.FC<Props> = ({ message, onBookSelect, onRegenerate, onEdit, onStop }) => {
   const isUser = message.role === Role.USER;
 
   return (
@@ -18,7 +25,7 @@ const MessageBubble: React.FC<Props> = ({ message, onBookSelect }) => {
         {/* Bubble */}
         <div
           className={`
-            rounded-2xl px-5 py-3.5 
+            rounded-2xl px-5 py-3.5 relative
             transition-all duration-300 shadow-sm
             ${isUser
               ? 'bg-sage-300/30 text-sage-900 rounded-tr-sm'
@@ -35,6 +42,31 @@ const MessageBubble: React.FC<Props> = ({ message, onBookSelect }) => {
               <span>소원</span>
             </div>
           )}
+          {/* Action Buttons (Hover) */}
+          {/* AI Message Actions (Right Side) */}
+          <div className="absolute top-2 -right-8 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+            {/* Stop Button */}
+            {!isUser && onStop && message.isStreaming && (
+              <button onClick={onStop} className="p-1 text-red-400 hover:text-red-600 animate-pulse" title="생성 중단">
+                <StopIcon className="w-4 h-4" />
+              </button>
+            )}
+
+            {!isUser && onRegenerate && !message.isStreaming && (
+              <button onClick={onRegenerate} className="p-1 text-sage-400 hover:text-sage-600" title="다시 생성">
+                <RefreshIcon className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* User Message Actions (Left Side) */}
+          <div className="absolute top-2 -left-8 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+            {isUser && onEdit && (
+              <button onClick={onEdit} className="p-1 text-sage-400 hover:text-sage-600" title="수정">
+                <EditIcon className="w-4 h-4" />
+              </button>
+            )}
+          </div>
 
           <MarkdownRenderer content={message.content} />
 
