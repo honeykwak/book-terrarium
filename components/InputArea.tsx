@@ -20,6 +20,7 @@ const InputArea: React.FC<Props> = ({ value, onChange, onSend, isLoading }) => {
   }, [value]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.nativeEvent.isComposing) return; // Prevent double firing during IME composition
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       onSend();
@@ -29,9 +30,9 @@ const InputArea: React.FC<Props> = ({ value, onChange, onSend, isLoading }) => {
   return (
     <div className="w-full max-w-3xl mx-auto px-4 pb-4">
       <div className="relative flex items-end gap-2 bg-white rounded-[2rem] shadow-lg shadow-sage-200/50 p-2 border border-sage-100 transition-all focus-within:ring-2 focus-within:ring-sage-400/50 focus-within:border-sage-400">
-        
+
         {/* Plus Button (Attachments) */}
-        <button 
+        <button
           className="p-3 text-sage-400 hover:text-sage-600 hover:bg-sage-50 rounded-full transition-colors flex-shrink-0"
           aria-label="Add attachment"
         >
@@ -52,26 +53,26 @@ const InputArea: React.FC<Props> = ({ value, onChange, onSend, isLoading }) => {
 
         {/* Send or Mic Button */}
         {value.trim() ? (
-           <button 
-             onClick={onSend}
-             disabled={isLoading}
-             className={`
+          <button
+            onClick={onSend}
+            disabled={isLoading}
+            className={`
                p-3 rounded-full flex-shrink-0 mb-0.5 transition-all duration-200
-               ${isLoading 
-                 ? 'bg-sage-200 text-white cursor-not-allowed' 
-                 : 'bg-sage-700 text-white hover:bg-sage-800 shadow-md'
-               }
+               ${isLoading
+                ? 'bg-sage-200 text-white cursor-not-allowed'
+                : 'bg-sage-700 text-white hover:bg-sage-800 shadow-md'
+              }
              `}
-           >
-             <SendIcon className="w-5 h-5" />
-           </button>
+          >
+            <SendIcon className="w-5 h-5" />
+          </button>
         ) : (
           <button className="p-3 text-sage-400 hover:text-sage-600 hover:bg-sage-50 rounded-full transition-colors flex-shrink-0 mb-0.5">
             <MicIcon className="w-6 h-6" />
           </button>
         )}
       </div>
-      
+
       <div className="text-center mt-2 text-xs text-sage-400 font-sans">
         소원은 때로 실수할 수 있습니다. 중요한 내용은 다시 확인해 주세요.
       </div>
