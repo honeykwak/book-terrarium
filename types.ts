@@ -29,6 +29,7 @@ export enum ModelType {
 }
 
 export interface ReportAnalytics {
+  summary: string;
   emotionAnalysis: {
     primary: string;
     intensity: number; // 1-10
@@ -39,6 +40,9 @@ export interface ReportAnalytics {
     avgDurationMinutes: number;
   };
   growthAreas: string[];
+  actionItems: string[];
+  emotionTrajectory: { progress: number; score: number }[];
+  focusAreas: { label: string; percentage: number; color?: string }[];
 }
 
 export interface UserProfile {
