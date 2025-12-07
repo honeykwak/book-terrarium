@@ -537,9 +537,10 @@ const SidebarContent: React.FC<{
               }`}
           >
             <div className="flex items-center gap-3">
-              {/* Icon Removed as per request */}
               <div className="flex flex-col items-start">
-                <span className={`text-sm font-bold ${isDailyActive ? 'text-sage-900' : 'text-sage-700'}`}>일상 대화</span>
+                <span className={`text-sm font-bold ${isDailyActive ? 'text-sage-900' : 'text-sage-700'}`}>
+                  {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                </span>
                 <span className="text-[10px] text-sage-400">
                   {dailySession ? '오늘의 이야기를 나눠보세요' : '새로운 대화를 시작해보세요'}
                 </span>
@@ -1561,7 +1562,9 @@ const App: React.FC = () => {
                 <span className="font-serif font-bold text-lg text-sage-900">{currentBook.title}</span>
               </div>
             ) : (
-              <span className="font-serif font-bold text-lg text-sage-800 tracking-tight">일상 대화</span>
+              <span className="font-serif font-bold text-lg text-sage-800 tracking-tight">
+                {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\./g, '.')}
+              </span>
             )}
           </div>
 
