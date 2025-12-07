@@ -40,17 +40,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 <div className="relative z-10 max-w-5xl mx-auto space-y-8 animate-fade-in-up">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sage-100 border border-sage-200 text-sage-700 text-xs font-bold uppercase tracking-wider mb-6">
                         <SparklesIcon className="w-4 h-4" />
-                        2025 Mental Wellness Solution
+                        AI Driven Bibliotherapy
                     </div>
 
                     <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-sage-900 leading-tight">
-                        우리는 연결될수록,<br />
-                        <span className="text-sage-500 italic">더 외로워집니다.</span>
+                        당신의 마음을 읽는<br />
+                        <span className="text-sage-500 italic">독서 치료사, 소원</span>
                     </h1>
 
                     <p className="font-sans text-xl md:text-2xl text-sage-600 max-w-3xl mx-auto leading-relaxed pt-4">
-                        디지털 과잉의 시대, 진짜 위로는 어디에 있을까요?<br />
-                        <strong className="text-sage-800">소원</strong>은 당신의 마음을 읽고, 책으로 말을 겁니다.
+                        말로 다 할 수 없는 고민이 있나요? <br className="md:hidden" />
+                        소원은 당신의 감정을 이해하고, 지금 당신에게 가장 필요한 문장과 책을 처방해 드립니다.
                     </p>
 
                     <div className="pt-12">
@@ -85,9 +85,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                     {/* Feature 1: Deep Empathy */}
                     <div className="flex flex-col md:flex-row items-center gap-16 mb-32">
                         <div className="md:w-1/2 space-y-6">
-                            <div className="w-12 h-12 bg-sage-100 rounded-2xl flex items-center justify-center text-sage-700 mb-4">
-                                <BrainIcon className="w-6 h-6" />
-                            </div>
                             <h3 className="font-serif text-3xl font-bold text-sage-900">깊이 있는 공감 대화</h3>
                             <p className="text-lg text-sage-600 leading-relaxed">
                                 "요즘 너무 무기력해"라고 말하면, 기계적인 답변 대신<br />
@@ -106,9 +103,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                             <PlaceholderFrame label="Book Card UI" aspect="aspect-video" icon={<BookIcon className="w-12 h-12" />} />
                         </div>
                         <div className="md:w-1/2 space-y-6">
-                            <div className="w-12 h-12 bg-sage-100 rounded-2xl flex items-center justify-center text-sage-700 mb-4">
-                                <TargetIcon className="w-6 h-6" />
-                            </div>
                             <h3 className="font-serif text-3xl font-bold text-sage-900">상황별 맞춤 도서 처방</h3>
                             <p className="text-lg text-sage-600 leading-relaxed">
                                 수십만 권의 도서 데이터베이스에서<br />
@@ -160,8 +154,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 <div className="max-w-7xl mx-auto relative z-10">
                     <SectionHeader
                         badge="Technology"
-                        title="Powered by Gemini 2.5"
-                        subtitle="압도적인 성능과 속도. 2025년형 AI 아키텍처."
+                        title="Engineered for Empathy"
+                        subtitle="최신 생성형 AI 모델과 견고한 엔지니어링의 결합."
                         dark
                     />
 
@@ -205,7 +199,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 <div className="max-w-4xl mx-auto">
                     <SectionHeader
                         badge="Vision"
-                        title="Roadmap to 2026"
+                        title="Project Roadmap 2025"
                         subtitle="소원은 멈추지 않습니다. 더 깊은 치유를 향해 나아갑니다."
                     />
 
