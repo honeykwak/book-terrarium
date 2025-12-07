@@ -18,7 +18,7 @@ export const dbService = {
         return data;
     },
 
-    async updateUserProfile(userId: string, updates: { nickname?: string; location?: string; age_group?: string; avatar_url?: string }) {
+    async updateUserProfile(userId: string, updates: { nickname?: string; location?: string; age_group?: string; avatar_url?: string; favorite_books?: Book[] }) {
         const { data, error } = await supabase
             .from('profiles')
             .update(updates)

@@ -42,7 +42,9 @@ const mapMessagesToGeminiHistory = (messages: Message[]): { role: string; parts:
     }));
 };
 
-export const initializeChat = (modelId: ModelType = ModelType.FLASH, history: Message[] = []) => {
+import { UserProfile } from '../types';
+
+export const initializeChat = (modelId: ModelType = ModelType.FLASH, history: Message[] = [], userProfile?: UserProfile) => {
   // console.log("Initializing Gemini Chat with model:", modelId); // Reduce noise
   const genAI = getClient();
 
@@ -50,9 +52,15 @@ export const initializeChat = (modelId: ModelType = ModelType.FLASH, history: Me
   // FORCE RE-INIT if history is provided and different? 
   // For simplicity: If history is provided, we assume we want a fresh start with this history.
   if (!chatSession || currentModel !== modelId || history.length > 0) {
+    let instruction = SYSTEM_INSTRUCTION;
+    if (userProfile && userProfile.favoriteBooks && userProfile.favoriteBooks.length > 0) {
+      const booksList = userProfile.favoriteBooks.map(b => `"${b.title}"`).join(', '); // Minimized info to title for now
+      instruction += `\n\n[사용자 개인화 정보]\n사용자는 다음과 같은 '인생 책'을 좋아합니다: ${booksList}.\n이 책들의 감성과 주제를 참고하여 사용자의 취향에 맞는 공감과 추천을 제공하세요.`;
+    }
+
     const model = genAI.getGenerativeModel({
       model: modelId,
-      systemInstruction: SYSTEM_INSTRUCTION
+      systemInstruction: instruction
     });
 
     const geminiHistory = mapMessagesToGeminiHistory(history);
@@ -76,13 +84,14 @@ export const sendMessageStream = async (
   text: string,
   history: Message[],
   modelId: ModelType,
-  onChunk: (text: string) => void
+  onChunk: (text: string) => void,
+  userProfile?: UserProfile
 ): Promise<string> => {
   try {
     // Pass history to initializeChat. 
     // Note: We normally pass exclude the CURRENT message from history because sendMessageStream sends it.
     // The 'history' arg here usually includes previous messages.
-    const chat = initializeChat(modelId, history);
+    const chat = initializeChat(modelId, history, userProfile);
 
     // In a real app, you might sync history here if the SDK required it manually,
     // but the stateful chat object handles context. 

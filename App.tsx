@@ -1171,7 +1171,8 @@ const App: React.FC = () => {
               ? { ...msg, content: streamedText, isStreaming: true }
               : msg
           ));
-        }
+        },
+        userProfile || undefined // Pass userProfile
       );
 
       // Final check if aborted

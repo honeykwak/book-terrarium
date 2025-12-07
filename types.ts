@@ -51,6 +51,7 @@ export interface UserProfile {
   email: string;
   avatarUrl?: string;
   preferredLibCodes?: string[]; // For library inventory checks
+  favoriteBooks?: Book[];
 }
 
 export interface Book {

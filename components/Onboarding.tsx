@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { KOREA_REGIONS } from '../constants';
+import { searchBooks } from '../services/googleBooksService';
+import { Book } from '../types';
+import { BookIcon, CheckCircleIcon, SearchIcon, XIcon, PlusIcon, SpinnerIcon } from './Icon';
 
 interface OnboardingProps {
   initialName: string;
@@ -7,7 +10,7 @@ interface OnboardingProps {
   onLogout: () => void;
 }
 
-const STEPS = ['GUIDE', 'PROFILE', 'ALARM'];
+const STEPS = ['GUIDE', 'PROFILE', 'FAVORITES', 'ALARM'];
 
 // --- Sub-components (Extracted to prevent re-renders) ---
 
@@ -173,6 +176,134 @@ const ProfileStep = ({ formData, setFormData }: { formData: any, setFormData: an
   );
 };
 
+// --- NEW STEP: Favorite Books ---
+const FavoriteBookStep = ({ formData, setFormData }: { formData: any, setFormData: any }) => {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<Book[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [favorites, setFavorites] = useState<Book[]>(formData.favoriteBooks || []);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    setSearching(true);
+    try {
+      const books = await searchBooks(query);
+      setResults(books);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const addFavorite = (book: Book) => {
+    if (favorites.length >= 3) {
+      alert("최대 3권까지 선택할 수 있습니다.");
+      return;
+    }
+    if (favorites.some(b => b.title === book.title)) return; // Simple dedup by title
+    const newFavorites = [...favorites, book];
+    setFavorites(newFavorites);
+    setFormData({ ...formData, favoriteBooks: newFavorites });
+  };
+
+  const removeFavorite = (bookTitle: string) => {
+    const newFavorites = favorites.filter(b => b.title !== bookTitle);
+    setFavorites(newFavorites);
+    setFormData({ ...formData, favoriteBooks: newFavorites });
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-serif font-bold text-sage-900 mb-2">인생 책을 알려주세요</h2>
+        <p className="text-sage-600 text-sm">
+          가장 기억에 남는 책 1~3권을 선택해주세요.<br />
+          취향을 분석하여 더 좋은 책을 추천해 드릴게요.
+        </p>
+      </div>
+
+      {/* Selected Books */}
+      <div className="flex flex-wrap gap-2 justify-center min-h-[40px]">
+        {favorites.map((book) => (
+          <div key={book.id} className="flex items-center gap-2 px-3 py-1.5 bg-sage-700 text-white rounded-full text-sm shadow-md animate-fade-in">
+            <span className="truncate max-w-[150px]">{book.title}</span>
+            <button onClick={() => removeFavorite(book.title)} className="hover:text-red-200">
+              <XIcon className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+        {favorites.length === 0 && (
+          <span className="text-sage-400 text-xs italic py-2">아직 선택된 책이 없습니다</span>
+        )}
+      </div>
+
+      {/* Search Bar */}
+      <form onSubmit={handleSearch} className="relative">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="책 제목 또는 저자 검색"
+          className="w-full pl-10 pr-4 py-3 bg-white border border-sage-200 rounded-xl text-sage-900 focus:ring-2 focus:ring-sage-400 outline-none"
+        />
+        <SearchIcon className="w-5 h-5 text-sage-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <button
+          type="submit"
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-sage-100 text-sage-600 rounded-lg font-bold text-xs hover:bg-sage-200"
+          disabled={searching}
+        >
+          {searching ? <SpinnerIcon className="w-4 h-4 animate-spin" /> : "검색"}
+        </button>
+      </form>
+
+      {/* Results */}
+      <div className="h-[280px] overflow-y-auto custom-scrollbar space-y-2 pr-1">
+        {results.map((book) => {
+          const isSelected = favorites.some(f => f.title === book.title);
+          return (
+            <button
+              key={book.id}
+              onClick={() => !isSelected && addFavorite(book)}
+              disabled={isSelected}
+              className={`w-full flex items-center gap-3 p-2 rounded-xl text-left transition-colors border ${isSelected
+                ? 'bg-sage-50 border-sage-200 opacity-60 cursor-default'
+                : 'bg-white border-transparent hover:bg-sage-50 hover:border-sage-200'
+                }`}
+            >
+              <div
+                className="w-10 h-14 bg-gray-200 rounded shrink-0 overflow-hidden shadow-sm"
+                style={{ backgroundColor: book.coverColor }}
+              >
+                {book.coverUrl ? (
+                  <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-white/50"><BookIcon className="w-4 h-4" /></div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-sage-900 text-sm truncate">{book.title}</h4>
+                <p className="text-xs text-sage-500 truncate">{book.author}</p>
+              </div>
+              {isSelected ? (
+                <CheckCircleIcon className="w-5 h-5 text-sage-500" />
+              ) : (
+                <div className="w-5 h-5 rounded-full border border-sage-300 flex items-center justify-center text-sage-300">
+                  <PlusIcon className="w-3 h-3" />
+                </div>
+              )}
+            </button>
+          )
+        })}
+        {results.length === 0 && !searching && query && (
+          <p className="text-center text-sage-400 text-xs py-8">검색 결과가 없습니다.</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+
 const AlarmStep = ({ formData, setFormData }: { formData: any, setFormData: any }) => {
   const times = [
     { id: 'morning', label: '아침 (06-09시)' },
@@ -257,6 +388,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ initialName, onComplete, onLogo
     region: '',
     district: '',
     location: '',
+    favoriteBooks: [] as Book[],
     alarmDays: [] as string[],
     alarmTimes: [] as string[]
   });
@@ -295,6 +427,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ initialName, onComplete, onLogo
         <div className="bg-white/80 backdrop-blur-md rounded-3xl p-6 md:p-10 shadow-xl border border-white">
           {currentStep === 'GUIDE' && <GuideStep />}
           {currentStep === 'PROFILE' && <ProfileStep formData={formData} setFormData={setFormData} />}
+          {currentStep === 'FAVORITES' && <FavoriteBookStep formData={formData} setFormData={setFormData} />}
           {currentStep === 'ALARM' && <AlarmStep formData={formData} setFormData={setFormData} />}
 
           <div className="mt-10 flex justify-end">
