@@ -72,7 +72,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 </div>
             </section>
 
-            {/* 2. SOLUTION: AI Bibliotherapy (User Journey) */}
+            {/* 2. SOLUTION: AI Bibliotherapy - Part 1 (White) */}
             <section className="py-24 px-6 bg-white">
                 <div className="max-w-7xl mx-auto">
                     <SectionHeader
@@ -82,7 +82,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                     />
 
                     {/* STEP 1: Onboarding */}
-                    <div className="flex flex-col md:flex-row items-center gap-16 mb-32">
+                    <div className="flex flex-col md:flex-row items-center gap-16 mb-24">
                         <div className="md:w-1/2 space-y-6">
                             <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 1</div>
                             <h3 className="font-serif text-3xl font-bold text-sage-900">당신을 알아가는 첫 만남</h3>
@@ -91,19 +91,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 소원은 당신에 대해 더 많이 알수록, 더 섬세한 위로를 건넬 수 있습니다.
                             </p>
                         </div>
-                        <div className="md:w-1/2 w-full flex justify-center">
-                            <div className="w-full max-w-xs">
-                                <PlaceholderFrame label="Onboarding / Profile Setup" aspect="aspect-[9/19]" icon={<SparklesIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
-                            </div>
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Onboarding / Profile Setup" aspect="aspect-[16/10]" icon={<SparklesIcon className="w-12 h-12" />} />
                         </div>
                     </div>
 
                     {/* STEP 2: Deep Empathy */}
-                    <div className="flex flex-col-reverse md:flex-row items-center gap-16 mb-32">
-                        <div className="md:w-1/2 w-full flex justify-center">
-                            <div className="w-full max-w-xs">
-                                <PlaceholderFrame label="Chat UI Screenshot (Deep Empathy)" aspect="aspect-[9/19]" icon={<MessageSquareIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
-                            </div>
+                    <div className="flex flex-col-reverse md:flex-row items-center gap-16">
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Chat UI Screenshot (Deep Empathy)" aspect="aspect-[16/10]" icon={<MessageSquareIcon className="w-12 h-12" />} />
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 2</div>
@@ -115,11 +111,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                             </p>
                         </div>
                     </div>
+                </div>
+            </section>
 
+            {/* 2. SOLUTION: AI Bibliotherapy - Part 2 (Sage-50) */}
+            <section className="py-24 px-6 bg-sage-50">
+                <div className="max-w-7xl mx-auto">
                     {/* STEP 3: Prescription */}
-                    <div className="flex flex-col md:flex-row items-center gap-16 mb-32">
+                    <div className="flex flex-col md:flex-row items-center gap-16 mb-24">
                         <div className="md:w-1/2 space-y-6">
-                            <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 3</div>
+                            <div className="inline-block px-3 py-1 bg-white text-sage-800 border border-sage-200 rounded-full text-sm font-bold mb-2">Step 3</div>
                             <h3 className="font-serif text-3xl font-bold text-sage-900">상황별 맞춤 도서 처방</h3>
                             <p className="text-lg text-sage-600 leading-relaxed">
                                 수십만 권의 도서 데이터베이스에서<br />
@@ -128,19 +129,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                             </p>
                         </div>
                         <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Book Recommendation Card" aspect="aspect-video" icon={<BookIcon className="w-12 h-12" />} />
+                            <PlaceholderFrame label="Book Recommendation Card" aspect="aspect-[16/10]" bg="bg-white" icon={<BookIcon className="w-12 h-12" />} />
                         </div>
                     </div>
 
                     {/* STEP 4: Reading Support */}
-                    <div className="flex flex-col-reverse md:flex-row items-center gap-16 mb-32">
-                        <div className="md:w-1/2 w-full flex justify-center">
-                            <div className="w-full max-w-xs">
-                                <PlaceholderFrame label="Reading Progress / Timer UI" aspect="aspect-[9/19]" icon={<ChartBarIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
-                            </div>
+                    <div className="flex flex-col-reverse md:flex-row items-center gap-16">
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Reading Progress / Timer UI" aspect="aspect-[16/10]" bg="bg-white" icon={<ChartBarIcon className="w-12 h-12" />} />
                         </div>
                         <div className="md:w-1/2 space-y-6">
-                            <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 4</div>
+                            <div className="inline-block px-3 py-1 bg-white text-sage-800 border border-sage-200 rounded-full text-sm font-bold mb-2">Step 4</div>
                             <h3 className="font-serif text-3xl font-bold text-sage-900">완독을 돕는 러닝메이트</h3>
                             <p className="text-lg text-sage-600 leading-relaxed">
                                 혼자 읽다 지치지 않도록, 진행 상황을 시각화하고 격려합니다.<br />
@@ -148,9 +147,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                             </p>
                         </div>
                     </div>
+                </div>
+            </section>
 
+            {/* 2. SOLUTION: AI Bibliotherapy - Part 3 (White) */}
+            <section className="py-24 px-6 bg-white">
+                <div className="max-w-7xl mx-auto">
                     {/* STEP 5: Report & History */}
-                    <div className="flex flex-col md:flex-row items-center gap-16 mb-32">
+                    <div className="flex flex-col md:flex-row items-center gap-16 mb-24">
                         <div className="md:w-1/2 space-y-6">
                             <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 5</div>
                             <h3 className="font-serif text-3xl font-bold text-sage-900">독서 감정 리포트</h3>
@@ -159,19 +163,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 AI와의 지난 대화 내역도 언제든 다시 꺼내볼 수 있습니다.
                             </p>
                         </div>
-                        <div className="md:w-1/2 w-full flex justify-center">
-                            <div className="w-full max-w-xs">
-                                <PlaceholderFrame label="Reading Report & Chat History" aspect="aspect-[9/19]" icon={<HistoryIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
-                            </div>
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Reading Report & Chat History" aspect="aspect-[16/10]" icon={<HistoryIcon className="w-12 h-12" />} />
                         </div>
                     </div>
 
                     {/* STEP 6: Community */}
                     <div className="flex flex-col-reverse md:flex-row items-center gap-16">
-                        <div className="md:w-1/2 w-full flex justify-center">
-                            <div className="w-full max-w-xs">
-                                <PlaceholderFrame label="Community Feed & Likes" aspect="aspect-[9/19]" icon={<ShareIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
-                            </div>
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Community Feed & Likes" aspect="aspect-[16/10]" icon={<ShareIcon className="w-12 h-12" />} />
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 6</div>
