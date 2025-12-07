@@ -1562,7 +1562,7 @@ const App: React.FC = () => {
 
           <div className="relative">
             {currentBook ? (
-              <div className="flex flex-col items-center animate-fade-in">
+              <div className="flex flex-col items-start animate-fade-in text-left">
                 <span className="text-xs font-bold text-sage-500 uppercase tracking-widest mb-0.5">Reading</span>
                 <span className="font-serif font-bold text-lg text-sage-900">{currentBook.title}</span>
               </div>
