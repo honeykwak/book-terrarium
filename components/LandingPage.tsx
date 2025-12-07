@@ -91,15 +91,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 소원은 당신에 대해 더 많이 알수록, 더 섬세한 위로를 건넬 수 있습니다.
                             </p>
                         </div>
-                        <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Onboarding / Profile Setup" aspect="aspect-[9/19]" icon={<SparklesIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                        <div className="md:w-1/2 w-full flex justify-center">
+                            <div className="w-full max-w-xs">
+                                <PlaceholderFrame label="Onboarding / Profile Setup" aspect="aspect-[9/19]" icon={<SparklesIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                            </div>
                         </div>
                     </div>
 
                     {/* STEP 2: Deep Empathy */}
                     <div className="flex flex-col-reverse md:flex-row items-center gap-16 mb-32">
-                        <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Chat UI Screenshot (Deep Empathy)" aspect="aspect-[9/19]" icon={<MessageSquareIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                        <div className="md:w-1/2 w-full flex justify-center">
+                            <div className="w-full max-w-xs">
+                                <PlaceholderFrame label="Chat UI Screenshot (Deep Empathy)" aspect="aspect-[9/19]" icon={<MessageSquareIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                            </div>
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 2</div>
@@ -130,8 +134,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
                     {/* STEP 4: Reading Support */}
                     <div className="flex flex-col-reverse md:flex-row items-center gap-16 mb-32">
-                        <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Reading Progress / Timer UI" aspect="aspect-[9/19]" icon={<ChartBarIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                        <div className="md:w-1/2 w-full flex justify-center">
+                            <div className="w-full max-w-xs">
+                                <PlaceholderFrame label="Reading Progress / Timer UI" aspect="aspect-[9/19]" icon={<ChartBarIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                            </div>
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 4</div>
@@ -153,15 +159,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 AI와의 지난 대화 내역도 언제든 다시 꺼내볼 수 있습니다.
                             </p>
                         </div>
-                        <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Reading Report & Chat History" aspect="aspect-[9/19]" icon={<HistoryIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                        <div className="md:w-1/2 w-full flex justify-center">
+                            <div className="w-full max-w-xs">
+                                <PlaceholderFrame label="Reading Report & Chat History" aspect="aspect-[9/19]" icon={<HistoryIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                            </div>
                         </div>
                     </div>
 
                     {/* STEP 6: Community */}
                     <div className="flex flex-col-reverse md:flex-row items-center gap-16">
-                        <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Community Feed & Likes" aspect="aspect-[9/19]" icon={<ShareIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                        <div className="md:w-1/2 w-full flex justify-center">
+                            <div className="w-full max-w-xs">
+                                <PlaceholderFrame label="Community Feed & Likes" aspect="aspect-[9/19]" icon={<ShareIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                            </div>
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 6</div>
