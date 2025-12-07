@@ -1,7 +1,6 @@
-
 import React from 'react';
 import {
-    SparklesIcon, BookIcon, BrainIcon, TargetIcon,
+    SparklesIcon, BookIcon,
     ChevronDownIcon, LeafIcon, ChartBarIcon, ShareIcon,
     MessageSquareIcon, HistoryIcon, LockIcon
 } from './Icon';
@@ -73,7 +72,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 </div>
             </section>
 
-            {/* 2. SOLUTION: AI Bibliotherapy (1-3 min) */}
+            {/* 2. SOLUTION: AI Bibliotherapy (User Journey) */}
             <section className="py-24 px-6 bg-white">
                 <div className="max-w-7xl mx-auto">
                     <SectionHeader
@@ -82,9 +81,28 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                         subtitle="단순한 챗봇이 아닙니다. 당신의 감정을 분석하고 문학적 처방을 내립니다."
                     />
 
-                    {/* Feature 1: Deep Empathy */}
+                    {/* STEP 1: Onboarding */}
                     <div className="flex flex-col md:flex-row items-center gap-16 mb-32">
                         <div className="md:w-1/2 space-y-6">
+                            <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 1</div>
+                            <h3 className="font-serif text-3xl font-bold text-sage-900">당신을 알아가는 첫 만남</h3>
+                            <p className="text-lg text-sage-600 leading-relaxed">
+                                간단한 대화를 통해 당신의 성향, 고민, 그리고 독서 취향을 파악합니다.<br />
+                                소원은 당신에 대해 더 많이 알수록, 더 섬세한 위로를 건넬 수 있습니다.
+                            </p>
+                        </div>
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Onboarding / Profile Setup" aspect="aspect-[9/19]" icon={<SparklesIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                        </div>
+                    </div>
+
+                    {/* STEP 2: Deep Empathy */}
+                    <div className="flex flex-col-reverse md:flex-row items-center gap-16 mb-32">
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Chat UI Screenshot (Deep Empathy)" aspect="aspect-[9/19]" icon={<MessageSquareIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                        </div>
+                        <div className="md:w-1/2 space-y-6">
+                            <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 2</div>
                             <h3 className="font-serif text-3xl font-bold text-sage-900">깊이 있는 공감 대화</h3>
                             <p className="text-lg text-sage-600 leading-relaxed">
                                 "요즘 너무 무기력해"라고 말하면, 기계적인 답변 대신<br />
@@ -92,22 +110,65 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 Gemini 2.5 Flash 모델이 문맥을 완벽하게 파악합니다.
                             </p>
                         </div>
-                        <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Chat UI Screenshot (Desktop)" aspect="aspect-[16/10]" icon={<MessageSquareIcon className="w-12 h-12" />} />
-                        </div>
                     </div>
 
-                    {/* Feature 2: Contextual Prescription */}
-                    <div className="flex flex-col-reverse md:flex-row items-center gap-16">
-                        <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Book Card UI" aspect="aspect-video" icon={<BookIcon className="w-12 h-12" />} />
-                        </div>
+                    {/* STEP 3: Prescription */}
+                    <div className="flex flex-col md:flex-row items-center gap-16 mb-32">
                         <div className="md:w-1/2 space-y-6">
+                            <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 3</div>
                             <h3 className="font-serif text-3xl font-bold text-sage-900">상황별 맞춤 도서 처방</h3>
                             <p className="text-lg text-sage-600 leading-relaxed">
                                 수십만 권의 도서 데이터베이스에서<br />
                                 지금 당신의 고민을 해결해 줄 단 한 권의 책을 찾아냅니다.<br />
                                 책 표지, 저자, 그리고 추천 이유를 명확하게 제시합니다.
+                            </p>
+                        </div>
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Book Recommendation Card" aspect="aspect-video" icon={<BookIcon className="w-12 h-12" />} />
+                        </div>
+                    </div>
+
+                    {/* STEP 4: Reading Support */}
+                    <div className="flex flex-col-reverse md:flex-row items-center gap-16 mb-32">
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Reading Progress / Timer UI" aspect="aspect-[9/19]" icon={<ChartBarIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                        </div>
+                        <div className="md:w-1/2 space-y-6">
+                            <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 4</div>
+                            <h3 className="font-serif text-3xl font-bold text-sage-900">완독을 돕는 러닝메이트</h3>
+                            <p className="text-lg text-sage-600 leading-relaxed">
+                                혼자 읽다 지치지 않도록, 진행 상황을 시각화하고 격려합니다.<br />
+                                목표하신 분량을 읽을 수 있도록 꾸준히 동기를 부여해 드립니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* STEP 5: Report & History */}
+                    <div className="flex flex-col md:flex-row items-center gap-16 mb-32">
+                        <div className="md:w-1/2 space-y-6">
+                            <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 5</div>
+                            <h3 className="font-serif text-3xl font-bold text-sage-900">독서 감정 리포트</h3>
+                            <p className="text-lg text-sage-600 leading-relaxed">
+                                완독 후, 당신의 감정 변화와 읽은 내용을 분석한 리포트를 제공합니다.<br />
+                                AI와의 지난 대화 내역도 언제든 다시 꺼내볼 수 있습니다.
+                            </p>
+                        </div>
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Reading Report & Chat History" aspect="aspect-[9/19]" icon={<HistoryIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                        </div>
+                    </div>
+
+                    {/* STEP 6: Community */}
+                    <div className="flex flex-col-reverse md:flex-row items-center gap-16">
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Community Feed & Likes" aspect="aspect-[9/19]" icon={<ShareIcon className="w-12 h-12" />} radius="rounded-[2rem]" />
+                        </div>
+                        <div className="md:w-1/2 space-y-6">
+                            <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 6</div>
+                            <h3 className="font-serif text-3xl font-bold text-sage-900">공감의 도서관</h3>
+                            <p className="text-lg text-sage-600 leading-relaxed">
+                                같은 책을 읽은 다른 사람들은 어떤 생각을 했을까요?<br />
+                                서로의 감상에 '좋아요'를 누르며, 느슨하지만 따뜻한 연대를 경험하세요.
                             </p>
                         </div>
                     </div>
@@ -199,23 +260,23 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 <div className="max-w-4xl mx-auto">
                     <SectionHeader
                         badge="Vision"
-                        title="Project Roadmap 2025"
+                        title="Roadmap 2026"
                         subtitle="소원은 멈추지 않습니다. 더 깊은 치유를 향해 나아갑니다."
                     />
 
                     <div className="relative mt-16 border-l-2 border-sage-200 ml-4 md:ml-0 space-y-12 pl-8 md:pl-0">
                         <RoadmapItem
-                            quarter="Q2 2025"
+                            quarter="Q1 2026"
                             title="Voice Therapy Interface"
                             desc="텍스트를 넘어, 따뜻한 음성으로 대화하는 보이스 테라피 기능 탑재."
                         />
                         <RoadmapItem
-                            quarter="Q3 2025"
+                            quarter="Q2 2026"
                             title="Community Group Therapy"
                             desc="비슷한 고민을 가진 사용자들과 익명으로 서로를 위로하는 안전한 공간."
                         />
                         <RoadmapItem
-                            quarter="Q4 2025"
+                            quarter="Q3 2026"
                             title="VR Book Immersion"
                             desc="추천받은 책의 풍경 속으로 들어가는 몰입형 독서 경험."
                         />
@@ -246,6 +307,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                     </p>
                 </div>
             </section>
+
         </div>
     );
 };
@@ -268,7 +330,7 @@ const SectionHeader: React.FC<{ badge: string, title: string, subtitle: string, 
 
 const PlaceholderFrame: React.FC<{
     label: string,
-    aspect?: string, // changed from height to aspect
+    aspect?: string,
     bg?: string,
     dark?: boolean,
     icon?: React.ReactNode,
