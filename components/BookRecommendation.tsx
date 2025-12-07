@@ -17,11 +17,19 @@ const BookRecommendation: React.FC<BookRecommendationProps> = ({ book, onSelect 
             >
                 <div className="absolute inset-0 bg-black/10" />
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/20" />
-                <div className="p-2 text-center mt-4">
-                    <span className="text-white/90 font-serif font-bold text-xs leading-tight block break-words">
-                        {book.title}
-                    </span>
-                </div>
+                <img
+                    src={book.coverUrl}
+                    alt={book.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    referrerPolicy="no-referrer"
+                />
+                {!book.coverUrl && (
+                    <div className="p-2 text-center mt-4">
+                        <span className="text-white/90 font-serif font-bold text-xs leading-tight block break-words">
+                            {book.title}
+                        </span>
+                    </div>
+                )}
             </div>
 
             {/* Content */}

@@ -11,7 +11,7 @@ export const searchBooks = async (query: string): Promise<Book[]> => {
 
         if (!data.items) return [];
 
-        return await Promise.all(data.items.map(async (item: any) => {
+        const books = await Promise.all(data.items.map(async (item: any) => {
             const info = item.volumeInfo;
             const randomColor = COVER_COLORS[Math.floor(Math.random() * COVER_COLORS.length)];
 
@@ -54,6 +54,15 @@ export const searchBooks = async (query: string): Promise<Book[]> => {
                 isbn: isbn
             };
         }));
+
+        // Sort: Books with coverUrl come first
+        books.sort((a, b) => {
+            if (a.coverUrl && !b.coverUrl) return -1;
+            if (!a.coverUrl && b.coverUrl) return 1;
+            return 0; // Maintain original order otherwise
+        });
+
+        return books;
     } catch (error) {
         console.error('Error fetching books:', error);
         return [];

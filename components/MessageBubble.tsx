@@ -37,11 +37,7 @@ const MessageBubble: React.FC<Props> = ({ message, onBookSelect, onRegenerate, o
               Keeping it inside for clear speaker identification in text blocks if needed, 
               but "Sowon" text is minimal. 
           */}
-          {!isUser && (
-            <div className="flex items-center gap-2 mb-2 text-sage-600 text-xs font-serif font-bold tracking-wider">
-              <span>소원</span>
-            </div>
-          )}
+
           {/* Action Buttons (Hover) */}
           <div className="absolute top-2 -right-8 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
             {!isUser && onRegenerate && !message.isStreaming && (

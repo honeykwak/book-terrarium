@@ -477,6 +477,7 @@ const LibraryModal: React.FC<{
                               src={book.coverUrl}
                               alt={book.title}
                               className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
                             />
                           ) : (
                             // No image fallback (Color only) is handled by parent style
@@ -1548,14 +1549,7 @@ const App: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(true)}
               className="p-2 -ml-2 text-sage-700 hover:bg-sage-200 rounded-lg transition-colors"
             >
-              {currentBook ? (
-                <div
-                  className="w-8 h-10 rounded-sm shadow-sm border border-black/10"
-                  style={{ backgroundColor: currentBook.coverColor }}
-                />
-              ) : (
-                <MenuIcon className="w-6 h-6" />
-              )}
+              <MenuIcon className="w-6 h-6" />
             </button>
           </div>
 
