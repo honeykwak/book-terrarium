@@ -92,14 +92,24 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                             </p>
                         </div>
                         <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Onboarding / Profile Setup" aspect="aspect-[16/10]" icon={<SparklesIcon className="w-12 h-12" />} />
+                            <PlaceholderFrame
+                                label="Onboarding / Profile Setup"
+                                aspect="aspect-[16/10]"
+                                icon={<SparklesIcon className="w-12 h-12" />}
+                                imageSrc="/screenshots/step1_onboarding.png"
+                            />
                         </div>
                     </div>
 
                     {/* STEP 2: Deep Empathy */}
                     <div className="flex flex-col-reverse md:flex-row items-center gap-16">
                         <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Chat UI Screenshot (Deep Empathy)" aspect="aspect-[16/10]" icon={<MessageSquareIcon className="w-12 h-12" />} />
+                            <PlaceholderFrame
+                                label="Chat UI Screenshot (Deep Empathy)"
+                                aspect="aspect-[16/10]"
+                                icon={<MessageSquareIcon className="w-12 h-12" />}
+                                imageSrc="/screenshots/step2_chat.png"
+                            />
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 2</div>
@@ -129,14 +139,26 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                             </p>
                         </div>
                         <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Book Recommendation Card" aspect="aspect-[16/10]" bg="bg-white" icon={<BookIcon className="w-12 h-12" />} />
+                            <PlaceholderFrame
+                                label="Book Recommendation Card"
+                                aspect="aspect-[16/10]"
+                                bg="bg-white"
+                                icon={<BookIcon className="w-12 h-12" />}
+                                imageSrc="/screenshots/step3_prescription.png"
+                            />
                         </div>
                     </div>
 
                     {/* STEP 4: Reading Support */}
                     <div className="flex flex-col-reverse md:flex-row items-center gap-16">
                         <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Reading Progress / Timer UI" aspect="aspect-[16/10]" bg="bg-white" icon={<ChartBarIcon className="w-12 h-12" />} />
+                            <PlaceholderFrame
+                                label="Reading Progress / Timer UI"
+                                aspect="aspect-[16/10]"
+                                bg="bg-white"
+                                icon={<ChartBarIcon className="w-12 h-12" />}
+                                imageSrc="/screenshots/step4_reading.png"
+                            />
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <div className="inline-block px-3 py-1 bg-white text-sage-800 border border-sage-200 rounded-full text-sm font-bold mb-2">Step 4</div>
@@ -164,14 +186,24 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                             </p>
                         </div>
                         <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Reading Report & Chat History" aspect="aspect-[16/10]" icon={<HistoryIcon className="w-12 h-12" />} />
+                            <PlaceholderFrame
+                                label="Reading Report & Chat History"
+                                aspect="aspect-[16/10]"
+                                icon={<HistoryIcon className="w-12 h-12" />}
+                                imageSrc="/screenshots/step5_report.png"
+                            />
                         </div>
                     </div>
 
                     {/* STEP 6: Community */}
                     <div className="flex flex-col-reverse md:flex-row items-center gap-16">
                         <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Community Feed & Likes" aspect="aspect-[16/10]" icon={<ShareIcon className="w-12 h-12" />} />
+                            <PlaceholderFrame
+                                label="Community Feed & Likes"
+                                aspect="aspect-[16/10]"
+                                icon={<ShareIcon className="w-12 h-12" />}
+                                imageSrc="/screenshots/step6_community.png"
+                            />
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <div className="inline-block px-3 py-1 bg-sage-100 text-sage-800 rounded-full text-sm font-bold mb-2">Step 6</div>
@@ -345,24 +377,36 @@ const PlaceholderFrame: React.FC<{
     dark?: boolean,
     icon?: React.ReactNode,
     radius?: string,
-    hideBorder?: boolean
-}> = ({ label, aspect = "aspect-video", bg = "bg-gray-100", dark, icon, radius = "rounded-xl", hideBorder }) => (
-    <div className={`w-full ${aspect} ${bg} ${radius} ${hideBorder ? '' : 'border-2 border-dashed'} ${dark ? 'border-sage-700' : 'border-sage-300'} flex flex-col items-center justify-center p-8 transition-all hover:bg-opacity-80 group cursor-pointer relative overflow-hidden`}>
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-            <div className={`mb-4 transition-transform group-hover:scale-110 ${dark ? 'text-sage-600' : 'text-sage-400'}`}>
-                {icon || <ShareIcon className="w-10 h-10" />}
-            </div>
-            <span className={`font-mono text-sm font-bold uppercase tracking-wider text-center px-4 ${dark ? 'text-sage-600' : 'text-sage-400'}`}>
-                {label}
-            </span>
-            <span className={`text-xs mt-2 ${dark ? 'text-sage-700' : 'text-sage-500'}`}>
-                (Size: {aspect === 'aspect-video' ? '16:9' : aspect.replace('aspect-[', '').replace(']', '')})
-            </span>
-        </div>
-        {/* Diagonal stripe pattern */}
-        <div className="absolute inset-0 opacity-[0.03]"
-            style={{ backgroundImage: 'linear-gradient(45deg, #000 25%, transparent 25%, transparent 50%, #000 50%, #000 75%, transparent 75%, transparent)', backgroundSize: '20px 20px' }}
-        />
+    hideBorder?: boolean,
+    imageSrc?: string,
+    imageAlt?: string
+}> = ({ label, aspect = "aspect-video", bg = "bg-gray-100", dark, icon, radius = "rounded-xl", hideBorder, imageSrc, imageAlt }) => (
+    <div className={`w-full ${aspect} ${bg} ${radius} ${hideBorder ? '' : 'border-2 border-dashed'} ${dark ? 'border-sage-700' : 'border-sage-300'} flex flex-col items-center justify-center relative overflow-hidden transition-all hover:shadow-xl`}>
+        {imageSrc ? (
+            <img
+                src={imageSrc}
+                alt={imageAlt || label}
+                className={`absolute inset-0 w-full h-full object-cover object-top ${radius}`}
+            />
+        ) : (
+            <>
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-8">
+                    <div className={`mb-4 transition-transform group-hover:scale-110 ${dark ? 'text-sage-600' : 'text-sage-400'}`}>
+                        {icon || <ShareIcon className="w-10 h-10" />}
+                    </div>
+                    <span className={`font-mono text-sm font-bold uppercase tracking-wider text-center px-4 ${dark ? 'text-sage-600' : 'text-sage-400'}`}>
+                        {label}
+                    </span>
+                    <span className={`text-xs mt-2 ${dark ? 'text-sage-700' : 'text-sage-500'}`}>
+                        (Size: {aspect === 'aspect-video' ? '16:9' : aspect.replace('aspect-[', '').replace(']', '')})
+                    </span>
+                </div>
+                {/* Diagonal stripe pattern */}
+                <div className="absolute inset-0 opacity-[0.03]"
+                    style={{ backgroundImage: 'linear-gradient(45deg, #000 25%, transparent 25%, transparent 50%, #000 50%, #000 75%, transparent 75%, transparent)', backgroundSize: '20px 20px' }}
+                />
+            </>
+        )}
     </div>
 );
 
