@@ -1173,17 +1173,65 @@ const App: React.FC = () => {
         return;
       }
 
-      // Save AI message to DB after streaming completes
+      // --- Optimization: Extract Recommendations from Main Response ---
+      // The System Instruction ensures the AI puts ["Title1", "Title2"] at the end if it recommends books.
+      // We process this HERE instead of making a second API call, preventing 429 Quota errors.
+
+      let processedContent = finalContent;
+      let recommendedBooks: Book[] = [];
+
+      // Regex to find JSON array at the end of the string
+      // Matches: ["Title", ...] optionally wrapped in markdown code blocks
+      const jsonRegex = /(?:```json\s*)?(\[[\s\S]*?\])(?:\s*```)?$/;
+      const match = finalContent.match(jsonRegex);
+
+      if (match) {
+        try {
+          const jsonString = match[1];
+          const titles = JSON.parse(jsonString);
+
+          if (Array.isArray(titles) && titles.length > 0) {
+            // Remove the JSON string from the display text for a cleaner UI
+            processedContent = finalContent.replace(match[0], '').trim();
+
+            // Fetch book metadata in parallel
+            for (const title of titles) {
+              const results = await searchBooks(title);
+              if (results.length > 0) {
+                recommendedBooks.push(results[0]);
+              }
+            }
+          }
+        } catch (e) {
+          console.error("Failed to parse recommendation JSON:", e);
+          // If parsing fails, we keep the content as is and don't attach books
+        }
+      }
+
+      // Save AI message to DB after processing
       if (activeSessionId) {
         const finalAiMsg: Message = {
           id: aiMsgId,
           role: Role.MODEL,
-          content: finalContent,
+          content: processedContent,
           timestamp: new Date(),
-          isStreaming: false
+          isStreaming: false,
+          recommendedBooks: recommendedBooks.length > 0 ? recommendedBooks : undefined
         };
         await dbService.saveMessage(activeSessionId, finalAiMsg);
       }
+
+      // Update local state one last time to reflect processed content and recommendations
+      setMessages(prev => prev.map(msg =>
+        msg.id === aiMsgId
+          ? {
+            ...msg,
+            content: processedContent,
+            isStreaming: false,
+            recommendedBooks: recommendedBooks.length > 0 ? recommendedBooks : undefined
+          }
+          : msg
+      ));
 
     } catch (error) {
       if (ac.signal.aborted) {
@@ -1206,78 +1254,6 @@ const App: React.FC = () => {
       setIsStreaming(false);
       setLoadingText('');
       abortControllerRef.current = null;
-      setMessages(prev => prev.map(msg =>
-        msg.id === aiMsgId
-          ? { ...msg, isStreaming: false }
-          : msg
-      ));
-    }
-
-    // --- TRIGGER: Real Book Recommendation ---
-    if ((text.includes("추천") || text.includes("recommend")) && !currentBook) {
-      setIsLoading(true);
-
-      try {
-        const recommendationPrompt = `
-                    User input: "${text}"
-                    ${currentBook ? `Context: User is currently reading '${currentBook.title}'. The recommendation should be relevant to this setting or request.` : ''}
-                    Based on this input, recommend 3 specific book titles that would be helpful.
-                    Return ONLY a JSON array of strings. Do not include any other text.
-                    Example: ["Demian", "The Little Prince", "Walden"]
-                    `;
-
-        let jsonString = '';
-        await sendMessageStream(
-          recommendationPrompt,
-          [],
-          ModelType.FLASH,
-          (chunk) => { jsonString += chunk; }
-        );
-
-        jsonString = jsonString.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        let titles: string[] = [];
-        try {
-          titles = JSON.parse(jsonString);
-        } catch (e) {
-          console.error("Failed to parse book titles from AI:", jsonString);
-          titles = [text];
-        }
-
-        const recommendedBooks: Book[] = [];
-        for (const title of titles) {
-          const results = await searchBooks(title);
-          if (results.length > 0) {
-            recommendedBooks.push(results[0]);
-          }
-        }
-
-        const recMsg: Message = {
-          id: (Date.now() + 1).toString(),
-          role: Role.MODEL,
-          content: `${userName ? userName + '님' : '당신'}의 상황에 맞는 책들을 찾아보았습니다.\n이 책들이 위로가 되기를 바랍니다.`,
-          timestamp: new Date(),
-          recommendedBooks: recommendedBooks
-        };
-
-        setMessages(prev => [...prev, recMsg]);
-
-        if (activeSessionId) {
-          await dbService.saveMessage(activeSessionId, recMsg);
-        }
-
-      } catch (error) {
-        console.error("Error getting recommendations:", error);
-        const errorMsg: Message = {
-          id: Date.now().toString(),
-          role: Role.MODEL,
-          content: "죄송합니다. 책을 추천하는 중에 문제가 발생했습니다.",
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, errorMsg]);
-      } finally {
-        setIsLoading(false);
-      }
     }
   };
 
