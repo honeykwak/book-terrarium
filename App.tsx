@@ -8,7 +8,8 @@ import MessageBubble from './components/MessageBubble';
 import InputArea from './components/InputArea';
 import LoginScreen from './components/LoginScreen';
 import Onboarding from './components/Onboarding';
-import MyPageModal from './components/MyPageModal';
+import MyPageModal from './components/MyPageModal'; // Import MyPageModal
+import LandingPage from './components/LandingPage'; // Import LandingPage
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { EmotionLineGraph, FocusDonutChart, KeywordBarChart } from './components/ReportComponents';
 import {
@@ -1400,50 +1401,70 @@ const App: React.FC = () => {
 
 
 
+  // State for Landing Page
+  const [showLanding, setShowLanding] = useState(!session); // Show landing if no session initially
+
+  // Handling Landing Page Transition
+  if (showLanding && !session) {
+    return <LandingPage onStart={() => setShowLanding(false)} />;
+  }
+
+  // --- Login Screen ---
+  if (!session) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
   return (
     <div className="flex h-screen bg-sage-100 font-sans overflow-hidden text-sage-900">
-
       {/* Modals */}
-      {showDeleteConfirm && (
-        <DeleteConfirmModal
-          onConfirm={confirmDeleteSession}
-          onClose={() => { setShowDeleteConfirm(false); setSessionToDelete(null); }}
-        />
-      )}
-      {showFinishConfirm && (
-        <FinishConfirmModal
-          onConfirm={handleConfirmFinish}
-          onClose={() => setShowFinishConfirm(false)}
-        />
-      )}
-      {showLibrary && (
-        <LibraryModal
-          onClose={() => { setShowLibrary(false); setViewingBook(null); }}
-          completedBooks={completedBooks}
-          viewingBook={viewingBook}
-          setViewingBook={setViewingBook}
-          libraryTab={libraryTab}
-          setLibraryTab={setLibraryTab}
-          userName={userName}
-          communityPosts={communityPosts}
-          handleUpdateReview={handleUpdateReview}
-          handleToggleShare={handleToggleShare}
-          handleLikePost={handleLikePost}
-        />
-      )}
-      {showMyPage && (
-        <MyPageModal
-          userName={userName}
-          userProfile={userProfile}
-          completedBooksCount={completedBooks.length}
-          messageCount={messageCount || (messages.length + (sessions.length * 10))}
-          onLogout={handleLogout}
-          onDeleteAccount={handleDeleteAccount}
-          onClose={() => setShowMyPage(false)}
-          readingActivity={readingActivity}
-          onUpdateProfile={handleUpdateProfile}
-        />
-      )}
+      {
+        showDeleteConfirm && (
+          <DeleteConfirmModal
+            onConfirm={confirmDeleteSession}
+            onClose={() => { setShowDeleteConfirm(false); setSessionToDelete(null); }}
+          />
+        )
+      }
+      {
+        showFinishConfirm && (
+          <FinishConfirmModal
+            onConfirm={handleConfirmFinish}
+            onClose={() => setShowFinishConfirm(false)}
+          />
+        )
+      }
+      {
+        showLibrary && (
+          <LibraryModal
+            onClose={() => { setShowLibrary(false); setViewingBook(null); }}
+            completedBooks={completedBooks}
+            viewingBook={viewingBook}
+            setViewingBook={setViewingBook}
+            libraryTab={libraryTab}
+            setLibraryTab={setLibraryTab}
+            userName={userName}
+            communityPosts={communityPosts}
+            handleUpdateReview={handleUpdateReview}
+            handleToggleShare={handleToggleShare}
+            handleLikePost={handleLikePost}
+          />
+        )
+      }
+      {
+        showMyPage && (
+          <MyPageModal
+            userName={userName}
+            userProfile={userProfile}
+            completedBooksCount={completedBooks.length}
+            messageCount={messageCount || (messages.length + (sessions.length * 10))}
+            onLogout={handleLogout}
+            onDeleteAccount={handleDeleteAccount}
+            onClose={() => setShowMyPage(false)}
+            readingActivity={readingActivity}
+            onUpdateProfile={handleUpdateProfile}
+          />
+        )
+      }
 
       {/* Sidebar (Desktop) */}
       <aside className={`hidden md:flex flex-col w-72 bg-sage-50 border-r border-sage-200 h-full transition-all duration-500`}>
@@ -1461,33 +1482,35 @@ const App: React.FC = () => {
       </aside>
 
       {/* Mobile Sidebar */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 flex md:hidden">
-          <div
-            className="fixed inset-0 bg-sage-900/20 backdrop-blur-sm transition-opacity"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          <aside className="relative w-72 h-full bg-sage-50 flex flex-col shadow-2xl animate-slide-in-left">
-            <button
+      {
+        isMobileMenuOpen && (
+          <div className="fixed inset-0 z-40 flex md:hidden">
+            <div
+              className="fixed inset-0 bg-sage-900/20 backdrop-blur-sm transition-opacity"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute top-4 right-4 p-2 text-sage-400 hover:text-sage-600 z-50"
-            >
-              <PlusIcon className="w-6 h-6 rotate-45" />
-            </button>
-            <SidebarContent
-              currentBook={currentBook}
-              sessions={sessions}
-              currentSessionId={currentSession?.id}
-              userName={userName}
-              handleNewChat={handleNewChat}
-              handleSelectSession={handleSelectSession}
-              handleDeleteSession={handleDeleteSession}
-              handleRequestFinish={handleRequestFinish}
-              setShowMyPage={setShowMyPage}
             />
-          </aside>
-        </div>
-      )}
+            <aside className="relative w-72 h-full bg-sage-50 flex flex-col shadow-2xl animate-slide-in-left">
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="absolute top-4 right-4 p-2 text-sage-400 hover:text-sage-600 z-50"
+              >
+                <PlusIcon className="w-6 h-6 rotate-45" />
+              </button>
+              <SidebarContent
+                currentBook={currentBook}
+                sessions={sessions}
+                currentSessionId={currentSession?.id}
+                userName={userName}
+                handleNewChat={handleNewChat}
+                handleSelectSession={handleSelectSession}
+                handleDeleteSession={handleDeleteSession}
+                handleRequestFinish={handleRequestFinish}
+                setShowMyPage={setShowMyPage}
+              />
+            </aside>
+          </div>
+        )
+      }
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full relative">
@@ -1656,7 +1679,7 @@ const App: React.FC = () => {
         .animate-slide-in-right { animation: slide-in-right 0.3s ease-out; }
         .animate-fade-in { animation: fade-in 0.5s ease-out; }
       `}</style>
-    </div>
+    </div >
   );
 };
 
