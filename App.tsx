@@ -670,6 +670,11 @@ const SidebarContent: React.FC<{
 };
 
 const App: React.FC = () => {
+  // --- Special Route: Landing Page (/info) ---
+  if (window.location.pathname === '/info') {
+    return <LandingPage onStart={() => window.location.href = '/'} />;
+  }
+
   // Session State
   const [appState, setAppState] = useState<AppState>('LOGIN');
   const [session, setSession] = useState<any>(null);
@@ -1401,13 +1406,7 @@ const App: React.FC = () => {
 
 
 
-  // State for Landing Page
-  const [showLanding, setShowLanding] = useState(!session); // Show landing if no session initially
 
-  // Handling Landing Page Transition
-  if (showLanding && !session) {
-    return <LandingPage onStart={() => setShowLanding(false)} />;
-  }
 
   // --- Login Screen ---
   if (!session) {
