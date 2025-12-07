@@ -2,7 +2,8 @@
 import React from 'react';
 import {
     SparklesIcon, BookIcon, BrainIcon, TargetIcon,
-    ChevronDownIcon, LeafIcon, ChartBarIcon, ShareIcon
+    ChevronDownIcon, LeafIcon, ChartBarIcon, ShareIcon,
+    MessageSquareIcon, HistoryIcon, LockIcon
 } from './Icon';
 
 interface LandingPageProps {
@@ -14,184 +15,313 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         <div className="min-h-screen bg-sage-50 text-sage-900 font-sans selection:bg-sage-200 overflow-x-hidden">
 
             {/* Navigation */}
-            <nav className="fixed top-0 w-full z-50 bg-sage-50/80 backdrop-blur-md border-b border-sage-100/50">
-                <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <nav className="fixed top-0 w-full z-50 bg-sage-50/90 backdrop-blur-md border-b border-sage-100/50 transition-all duration-300">
+                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <span className="font-serif font-bold text-xl text-sage-900 tracking-tight">소원</span>
-                        <span className="text-xs text-sage-500 uppercase tracking-widest hidden sm:block">Reading Therapist</span>
+                        <span className="font-serif font-bold text-2xl text-sage-900 tracking-tight">소원</span>
+                        <span className="text-xs text-sage-500 uppercase tracking-widest hidden sm:block border-l border-sage-300 pl-3 ml-1">
+                            AI Reading Therapist
+                        </span>
                     </div>
                     <button
                         onClick={onStart}
-                        className="px-5 py-2 bg-sage-800 hover:bg-sage-900 text-white text-sm font-medium rounded-full transition-all hover:shadow-lg transform hover:-translate-y-0.5"
+                        className="px-6 py-2 bg-sage-800 hover:bg-sage-900 text-white text-sm font-medium rounded-full transition-all hover:shadow-lg transform hover:-translate-y-0.5"
                     >
-                        시작하기
+                        체험하기
                     </button>
                 </div>
             </nav>
 
-            {/* Hero Section */}
-            <section className="relative pt-32 pb-20 px-6 min-h-[90vh] flex flex-col items-center justify-center text-center">
-                {/* Background Elements */}
-                <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-sage-200/30 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-green-100/40 rounded-full blur-3xl animate-pulse delay-700" />
+            {/* 1. HERO: The Problem & Hook (0-1 min) */}
+            <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20">
+                <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-sage-200/40 rounded-full blur-[100px] animate-pulse" />
+                <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-green-100/40 rounded-full blur-[80px] animate-pulse delay-1000" />
 
-                <div className="relative z-10 max-w-4xl mx-auto space-y-8 animate-fade-in-up">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sage-100 border border-sage-200 text-sage-600 text-xs font-semibold uppercase tracking-wider mb-4">
-                        <SparklesIcon className="w-3 h-3" />
-                        AI Driven Bibliotherapy
+                <div className="relative z-10 max-w-5xl mx-auto space-y-8 animate-fade-in-up">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sage-100 border border-sage-200 text-sage-700 text-xs font-bold uppercase tracking-wider mb-6">
+                        <SparklesIcon className="w-4 h-4" />
+                        2025 Mental Wellness Solution
                     </div>
 
-                    <h1 className="font-serif text-5xl md:text-7xl font-bold text-sage-900 leading-tight">
-                        당신의 마음을 읽는<br />
-                        <span className="text-sage-600">독서 치료사, 소원</span>
+                    <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-sage-900 leading-tight">
+                        우리는 연결될수록,<br />
+                        <span className="text-sage-500 italic">더 외로워집니다.</span>
                     </h1>
 
-                    <p className="font-sans text-lg md:text-xl text-sage-600 max-w-2xl mx-auto leading-relaxed">
-                        말로 다 할 수 없는 고민이 있나요? <br className="md:hidden" />소원은 당신의 감정을 이해하고, <br />
-                        지금 당신에게 가장 필요한 문장과 책을 처방해 드립니다.
+                    <p className="font-sans text-xl md:text-2xl text-sage-600 max-w-3xl mx-auto leading-relaxed pt-4">
+                        디지털 과잉의 시대, 진짜 위로는 어디에 있을까요?<br />
+                        <strong className="text-sage-800">소원</strong>은 당신의 마음을 읽고, 책으로 말을 겁니다.
                     </p>
 
-                    <div className="pt-8">
+                    <div className="pt-12">
                         <button
                             onClick={onStart}
-                            className="group relative px-8 py-4 bg-sage-900 text-white text-lg font-medium rounded-full overflow-hidden shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1"
+                            className="group relative px-10 py-5 bg-sage-900 text-white text-lg font-medium rounded-full overflow-hidden shadow-2xl hover:shadow-3xl transition-all hover:-translate-y-1"
                         >
-                            <span className="relative z-10 flex items-center gap-2">
-                                여정 시작하기
-                                <ChevronDownIcon className="w-4 h-4 transform -rotate-90 group-hover:translate-x-1 transition-transform" />
+                            <span className="relative z-10 flex items-center gap-3">
+                                치유의 여정 시작하기
+                                <ChevronDownIcon className="w-5 h-5 transform -rotate-90 group-hover:translate-x-1 transition-transform" />
                             </span>
                             <div className="absolute inset-0 bg-sage-800 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
                         </button>
                     </div>
                 </div>
 
-                <div className="absolute bottom-10 animate-bounce text-sage-400">
-                    <ChevronDownIcon className="w-6 h-6" />
+                <div className="absolute bottom-12 animate-bounce text-sage-400">
+                    <p className="text-xs mb-2 tracking-widest uppercase">Scroll to Discover</p>
+                    <ChevronDownIcon className="w-6 h-6 mx-auto" />
                 </div>
             </section>
 
-            {/* Features Section */}
-            <section className="py-24 px-6 bg-white relative">
-                <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-16 space-y-4">
-                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-sage-900">
-                            단순한 대화 그 이상의 경험
-                        </h2>
-                        <p className="text-sage-600">
-                            최첨단 AI 기술과 인문학적 감성이 만나<br />당신의 내면을 어루만집니다.
-                        </p>
-                    </div>
+            {/* 2. SOLUTION: AI Bibliotherapy (1-3 min) */}
+            <section className="py-24 px-6 bg-white">
+                <div className="max-w-7xl mx-auto">
+                    <SectionHeader
+                        badge="Solution"
+                        title="AI Bibliotherapy"
+                        subtitle="단순한 챗봇이 아닙니다. 당신의 감정을 분석하고 문학적 처방을 내립니다."
+                    />
 
-                    <div className="grid md:grid-cols-3 gap-8">
-                        <FeatureCard
-                            icon={<BrainIcon className="w-6 h-6 text-sage-100" />}
-                            title="깊이 있는 공감"
-                            desc="단순한 챗봇이 아닙니다. 당신의 상황과 감정의 맥락을 깊이 이해하고, 친구처럼 다정하게 대화합니다."
-                        />
-                        <FeatureCard
-                            icon={<BookIcon className="w-6 h-6 text-sage-100" />}
-                            title="맞춤형 도서 처방"
-                            desc="수많은 도서 데이터베이스 중에서, 지금 당신의 마음을 치유해 줄 단 한 권의 책을 찾아냅니다."
-                        />
-                        <FeatureCard
-                            icon={<ChartBarIcon className="w-6 h-6 text-sage-100" />}
-                            title="독서 여정 기록"
-                            desc="당신이 읽은 책과 나눈 대화들을 소중히 기록합니다. 당신만의 마음 치유 데이터를 시각화해 드립니다."
-                        />
-                    </div>
-                </div>
-            </section>
-
-            {/* Tech Stack Section */}
-            <section className="py-24 px-6 bg-sage-900 text-sage-50 relative overflow-hidden">
-                {/* Decorative Grid */}
-                <div className="absolute inset-0 opacity-10"
-                    style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '24px 24px' }}
-                />
-
-                <div className="max-w-6xl mx-auto relative z-10">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+                    {/* Feature 1: Deep Empathy */}
+                    <div className="flex flex-col md:flex-row items-center gap-16 mb-32">
                         <div className="md:w-1/2 space-y-6">
-                            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white leading-tight">
-                                Engineering<br />
-                                <span className="text-sage-300">The Soul's Sanctuary</span>
-                            </h2>
-                            <p className="text-sage-300 leading-relaxed text-lg">
-                                소원은 단순한 웹사이트가 아닙니다. <br />
-                                최신 웹 기술과 생성형 AI 모델이 결합된 <br />
-                                고도화된 멘탈 케어 플랫폼입니다.
+                            <div className="w-12 h-12 bg-sage-100 rounded-2xl flex items-center justify-center text-sage-700 mb-4">
+                                <BrainIcon className="w-6 h-6" />
+                            </div>
+                            <h3 className="font-serif text-3xl font-bold text-sage-900">깊이 있는 공감 대화</h3>
+                            <p className="text-lg text-sage-600 leading-relaxed">
+                                "요즘 너무 무기력해"라고 말하면, 기계적인 답변 대신<br />
+                                당신의 감정선에 맞춘 따뜻한 대화를 이어갑니다.<br />
+                                Gemini 2.5 Flash 모델이 문맥을 완벽하게 파악합니다.
                             </p>
+                        </div>
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Chat UI Screenshot" height="h-[500px]" icon={<MessageSquareIcon className="w-12 h-12" />} />
+                        </div>
+                    </div>
 
-                            <div className="grid grid-cols-2 gap-4 pt-4">
-                                <TechItem label="LLM Core" value="Gemini 1.5 Flash" />
-                                <TechItem label="Framework" value="React + Vite" />
-                                <TechItem label="Database" value="Supabase" />
-                                <TechItem label="Data Source" value="Google Books + Naroo" />
+                    {/* Feature 2: Contextual Prescription */}
+                    <div className="flex flex-col-reverse md:flex-row items-center gap-16">
+                        <div className="md:w-1/2 w-full">
+                            <PlaceholderFrame label="Book Recommendation Card" height="h-[400px]" icon={<BookIcon className="w-12 h-12" />} />
+                        </div>
+                        <div className="md:w-1/2 space-y-6">
+                            <div className="w-12 h-12 bg-sage-100 rounded-2xl flex items-center justify-center text-sage-700 mb-4">
+                                <TargetIcon className="w-6 h-6" />
+                            </div>
+                            <h3 className="font-serif text-3xl font-bold text-sage-900">상황별 맞춤 도서 처방</h3>
+                            <p className="text-lg text-sage-600 leading-relaxed">
+                                수십만 권의 도서 데이터베이스에서<br />
+                                지금 당신의 고민을 해결해 줄 단 한 권의 책을 찾아냅니다.<br />
+                                책 표지, 저자, 그리고 추천 이유를 명확하게 제시합니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* 3. EXPERIENCE: Cross-Platform (3-5 min) */}
+            <section className="py-24 px-6 bg-sage-50">
+                <div className="max-w-7xl mx-auto">
+                    <SectionHeader
+                        badge="Experience"
+                        title="Seamless Everywhere"
+                        subtitle="언제 어디서나, 당신 곁의 든든한 멘탈 케어 파트너."
+                    />
+
+                    <div className="relative mt-20 flex flex-col md:flex-row justify-center items-end gap-8">
+                        {/* Desktop Mockup */}
+                        <div className="w-full md:w-2/3 max-w-3xl relative z-10">
+                            <div className="bg-gray-800 rounded-t-xl p-2 pb-0 shadow-2xl">
+                                <div className="flex gap-1.5 p-2 mb-1">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                                </div>
+                                <PlaceholderFrame label="Desktop View (Library/Analytics)" height="h-[500px]" bg="bg-white" hideBorder icon={<ChartBarIcon className="w-12 h-12 text-sage-200" />} />
                             </div>
                         </div>
 
-                        <div className="md:w-1/2 w-full">
-                            <div className="bg-sage-800/50 backdrop-blur-sm rounded-2xl p-6 border border-sage-700/50 shadow-2xl">
-                                <div className="flex items-center gap-2 mb-4 border-b border-sage-700/50 pb-4">
-                                    <div className="flex gap-1.5">
-                                        <div className="w-3 h-3 rounded-full bg-red-400" />
-                                        <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                                        <div className="w-3 h-3 rounded-full bg-green-400" />
-                                    </div>
-                                    <span className="ml-2 text-xs text-sage-400 font-mono">architecture.tsx</span>
-                                </div>
-                                <div className="space-y-3 font-mono text-sm text-sage-300">
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-purple-300">const</span>
-                                        Sowon = <span className="text-blue-300">AI</span> + <span className="text-green-300">Empathy</span>;
-                                    </div>
-                                    <div className="pl-4 border-l-2 border-sage-700 space-y-1">
-                                        <p>// Real-time Streaming Response</p>
-                                        <p>// Context-Aware Recommendation</p>
-                                        <p>// Secure Data Encryption</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-purple-300">return</span>
-                                        <span className="text-orange-300"> Healing</span>;
-                                    </div>
-                                </div>
+                        {/* Mobile Mockup */}
+                        <div className="w-full md:w-1/3 max-w-xs relative z-20 md:-ml-20 md:-mb-12">
+                            <div className="bg-gray-900 rounded-[3rem] p-3 shadow-2xl border-4 border-gray-800">
+                                <div className="w-1/3 h-6 bg-black rounded-b-xl mx-auto absolute top-3 left-1/3 z-30" />
+                                <PlaceholderFrame label="Mobile View (Chat)" height="h-[600px]" bg="bg-white" radius="rounded-[2rem]" hideBorder icon={<MessageSquareIcon className="w-8 h-8 text-sage-200" />} />
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="bg-sage-950 text-sage-400 py-12 px-6 text-center">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-10 h-10 bg-sage-900 rounded-full flex items-center justify-center">
-                        <LeafIcon className="w-5 h-5 text-sage-500" />
+            {/* 4. TECHNOLOGY: Core Engine (5-7 min) */}
+            <section className="py-24 px-6 bg-sage-900 text-sage-50 relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <SectionHeader
+                        badge="Technology"
+                        title="Powered by Gemini 2.5"
+                        subtitle="압도적인 성능과 속도. 2025년형 AI 아키텍처."
+                        dark
+                    />
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
+                        <TechCard
+                            title="Gemini 2.5 Flash"
+                            desc="초저지연(Latency < 200ms) 및 1M 토큰 컨텍스트로 긴 대화도 완벽 기억."
+                            icon={<SparklesIcon className="w-6 h-6" />}
+                        />
+                        <TechCard
+                            title="Supabase Realtime"
+                            desc="대화 내용과 상태를 실시간으로 동기화하는 엔터프라이즈급 백엔드."
+                            icon={<ShareIcon className="w-6 h-6" />}
+                        />
+                        <TechCard
+                            title="Data Pipeline"
+                            desc="Google Books + 도서관 정보나루 API를 통한 검증된 도서 데이터."
+                            icon={<BookIcon className="w-6 h-6" />}
+                        />
+                        <TechCard
+                            title="Security First"
+                            desc="모든 대화는 암호화되며, 익명성이 철저하게 보장됩니다."
+                            icon={<LockIcon className="w-6 h-6" />}
+                        />
                     </div>
-                    <p className="font-serif text-sm">© 2024 Sowon Project. All rights reserved.</p>
-                    <p className="text-xs text-sage-600">Designed & Developed by HoneyKwak</p>
+
+                    {/* Architecture Diagram Placeholder */}
+                    <div className="mt-20">
+                        <div className="bg-sage-800/50 backdrop-blur-sm rounded-3xl p-8 border border-sage-700/50">
+                            <div className="text-center mb-8">
+                                <h4 className="text-xl font-bold font-mono text-sage-200">System Architecture</h4>
+                            </div>
+                            <PlaceholderFrame label="Architecture Diagram (Mermaid/Visio)" height="h-[400px]" bg="bg-sage-900/50" dark icon={<ShareIcon className="w-12 h-12 text-sage-700" />} />
+                        </div>
+                    </div>
                 </div>
-            </footer>
+            </section>
+
+            {/* 5. VISION: Roadmap (8-9 min) */}
+            <section className="py-24 px-6 bg-white">
+                <div className="max-w-4xl mx-auto">
+                    <SectionHeader
+                        badge="Vision"
+                        title="Roadmap to 2026"
+                        subtitle="소원은 멈추지 않습니다. 더 깊은 치유를 향해 나아갑니다."
+                    />
+
+                    <div className="relative mt-16 border-l-2 border-sage-200 ml-4 md:ml-0 space-y-12 pl-8 md:pl-0">
+                        <RoadmapItem
+                            quarter="Q2 2025"
+                            title="Voice Therapy Interface"
+                            desc="텍스트를 넘어, 따뜻한 음성으로 대화하는 보이스 테라피 기능 탑재."
+                        />
+                        <RoadmapItem
+                            quarter="Q3 2025"
+                            title="Community Group Therapy"
+                            desc="비슷한 고민을 가진 사용자들과 익명으로 서로를 위로하는 안전한 공간."
+                        />
+                        <RoadmapItem
+                            quarter="Q4 2025"
+                            title="VR Book Immersion"
+                            desc="추천받은 책의 풍경 속으로 들어가는 몰입형 독서 경험."
+                        />
+                    </div>
+                </div>
+            </section>
+
+            {/* 6. CLOSE: Call to Action (9-10 min) */}
+            <section className="py-32 px-6 bg-sage-50 text-center">
+                <div className="max-w-3xl mx-auto space-y-8">
+                    <LeafIcon className="w-16 h-16 text-sage-400 mx-auto" />
+                    <h2 className="font-serif text-4xl md:text-5xl font-bold text-sage-900 leading-tight">
+                        지금, 당신의 마음을<br />들려주세요.
+                    </h2>
+                    <p className="text-xl text-sage-600">
+                        소원은 언제나 당신을 기다리고 있습니다.
+                    </p>
+                    <div className="pt-8">
+                        <button
+                            onClick={onStart}
+                            className="px-12 py-5 bg-sage-900 hover:bg-sage-800 text-white text-xl font-bold rounded-full shadow-2xl transition-all transform hover:-translate-y-1 hover:scale-105"
+                        >
+                            무료로 시작하기
+                        </button>
+                    </div>
+                    <p className="text-sm text-sage-400 mt-12">
+                        © 2025 Sowon Project. Powered by HoneyKwak.
+                    </p>
+                </div>
+            </section>
         </div>
     );
 };
 
-// Helper Components
-const FeatureCard: React.FC<{ icon: React.ReactNode, title: string, desc: string }> = ({ icon, title, desc }) => (
-    <div className="bg-sage-50/50 p-8 rounded-2xl hover:bg-sage-100 transition-colors duration-300 group">
-        <div className="w-12 h-12 bg-sage-900 rounded-xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
-            {icon}
-        </div>
-        <h3 className="font-bold text-xl text-sage-900 mb-3">{title}</h3>
-        <p className="text-sage-600 leading-relaxed text-sm">
-            {desc}
+// --- Sub Components for Consistent Design ---
+
+const SectionHeader: React.FC<{ badge: string, title: string, subtitle: string, dark?: boolean }> = ({ badge, title, subtitle, dark }) => (
+    <div className="text-center space-y-4 mb-12">
+        <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase ${dark ? 'bg-sage-800 text-sage-300' : 'bg-sage-100 text-sage-600'}`}>
+            {badge}
+        </span>
+        <h2 className={`font-serif text-4xl md:text-5xl font-bold ${dark ? 'text-white' : 'text-sage-900'}`}>
+            {title}
+        </h2>
+        <p className={`text-lg md:text-xl max-w-2xl mx-auto ${dark ? 'text-sage-400' : 'text-sage-600'}`}>
+            {subtitle}
         </p>
     </div>
 );
 
-const TechItem: React.FC<{ label: string, value: string }> = ({ label, value }) => (
-    <div className="flex flex-col">
-        <span className="text-xs text-sage-400 uppercase tracking-wider">{label}</span>
-        <span className="font-bold text-white">{value}</span>
+const PlaceholderFrame: React.FC<{
+    label: string,
+    height: string,
+    bg?: string,
+    dark?: boolean,
+    icon?: React.ReactNode,
+    radius?: string,
+    hideBorder?: boolean
+}> = ({ label, height, bg = "bg-gray-100", dark, icon, radius = "rounded-xl", hideBorder }) => (
+    <div className={`w-full ${height} ${bg} ${radius} ${hideBorder ? '' : 'border-2 border-dashed'} ${dark ? 'border-sage-700' : 'border-sage-300'} flex flex-col items-center justify-center p-8 transition-all hover:bg-opacity-80 group cursor-pointer relative overflow-hidden`}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+            <div className={`mb-4 transition-transform group-hover:scale-110 ${dark ? 'text-sage-600' : 'text-sage-400'}`}>
+                {icon || <ShareIcon className="w-10 h-10" />}
+            </div>
+            <span className={`font-mono text-sm font-bold uppercase tracking-wider ${dark ? 'text-sage-600' : 'text-sage-400'}`}>
+                {label}
+            </span>
+            <span className={`text-xs mt-2 ${dark ? 'text-sage-700' : 'text-sage-500'}`}>
+                (Drag & Drop Image Here)
+            </span>
+        </div>
+        {/* Diagonal stripe pattern for placeholder feel */}
+        <div className="absolute inset-0 opacity-[0.03]"
+            style={{ backgroundImage: 'linear-gradient(45deg, #000 25%, transparent 25%, transparent 50%, #000 50%, #000 75%, transparent 75%, transparent)', backgroundSize: '20px 20px' }}
+        />
+    </div>
+);
+
+const TechCard: React.FC<{ title: string, desc: string, icon: React.ReactNode }> = ({ title, desc, icon }) => (
+    <div className="bg-sage-800 p-6 rounded-2xl border border-sage-700 hover:border-sage-500 transition-colors">
+        <div className="w-10 h-10 bg-sage-900 rounded-lg flex items-center justify-center text-sage-300 mb-4">
+            {icon}
+        </div>
+        <h4 className="font-bold text-white text-lg mb-2">{title}</h4>
+        <p className="text-sage-400 text-sm leading-relaxed">{desc}</p>
+    </div>
+);
+
+const RoadmapItem: React.FC<{ quarter: string, title: string, desc: string }> = ({ quarter, title, desc }) => (
+    <div className="relative flex flex-col md:flex-row gap-4 md:gap-12 md:items-center group">
+        <div className="absolute -left-[41px] md:-left-[41px] top-0 w-5 h-5 bg-white border-4 border-sage-300 rounded-full group-hover:border-sage-600 transition-colors z-10" />
+        <div className="w-32 flex-shrink-0">
+            <span className="text-sm font-bold text-sage-500 bg-sage-50 px-3 py-1 rounded-full uppercase tracking-wider">
+                {quarter}
+            </span>
+        </div>
+        <div>
+            <h4 className="text-2xl font-bold text-sage-900 group-hover:text-sage-700 transition-colors">{title}</h4>
+            <p className="text-sage-600 mt-2">{desc}</p>
+        </div>
     </div>
 );
 
