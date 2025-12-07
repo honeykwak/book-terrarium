@@ -539,7 +539,7 @@ const SidebarContent: React.FC<{
             <div className="flex items-center gap-3">
               <div className="flex flex-col items-start">
                 <span className={`text-sm font-bold ${isDailyActive ? 'text-sage-900' : 'text-sage-700'}`}>
-                  {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                  새로운 책 찾기
                 </span>
                 <span className="text-[10px] text-sage-400">
                   {dailySession ? '오늘의 이야기를 나눠보세요' : '새로운 대화를 시작해보세요'}
