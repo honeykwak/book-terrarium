@@ -524,6 +524,10 @@ const SidebarContent: React.FC<{
     <div className="flex flex-col h-full bg-sage-50/50">
       {/* Header & Daily Chat Slot */}
       <div className="px-6 pt-8 pb-4">
+        <div className="flex items-center gap-3 mb-6">
+          <span className="font-serif font-bold text-2xl text-sage-900 tracking-tight">소원</span>
+        </div>
+
         {/* Daily Chat - Dedicated Slot */}
         <div className="relative group">
           <button
