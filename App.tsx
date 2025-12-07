@@ -524,10 +524,6 @@ const SidebarContent: React.FC<{
     <div className="flex flex-col h-full bg-sage-50/50">
       {/* Header & Daily Chat Slot */}
       <div className="px-6 pt-8 pb-4">
-        <div className="flex items-center gap-3 mb-6">
-          <span className="font-serif font-bold text-2xl text-sage-900 tracking-tight">소원</span>
-        </div>
-
         {/* Daily Chat - Dedicated Slot */}
         <div className="relative group">
           <button
@@ -541,11 +537,9 @@ const SidebarContent: React.FC<{
               }`}
           >
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isDailyActive ? 'bg-sage-100 text-sage-700' : 'bg-sage-50 text-sage-400 group-hover:bg-sage-100 group-hover:text-sage-600'}`}>
-                <SparklesIcon className="w-5 h-5" />
-              </div>
+              {/* Icon Removed as per request */}
               <div className="flex flex-col items-start">
-                <span className={`text-sm font-bold ${isDailyActive ? 'text-sage-900' : 'text-sage-700'}`}>소원과 대화하기</span>
+                <span className={`text-sm font-bold ${isDailyActive ? 'text-sage-900' : 'text-sage-700'}`}>일상 대화</span>
                 <span className="text-[10px] text-sage-400">
                   {dailySession ? '오늘의 이야기를 나눠보세요' : '새로운 대화를 시작해보세요'}
                 </span>
@@ -1567,7 +1561,7 @@ const App: React.FC = () => {
                 <span className="font-serif font-bold text-lg text-sage-900">{currentBook.title}</span>
               </div>
             ) : (
-              <span className="font-serif font-bold text-lg text-sage-800 tracking-tight">소원</span>
+              <span className="font-serif font-bold text-lg text-sage-800 tracking-tight">일상 대화</span>
             )}
           </div>
 
