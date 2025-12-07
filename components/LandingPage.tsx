@@ -96,14 +96,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                             </p>
                         </div>
                         <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Chat UI Screenshot" height="h-[500px]" icon={<MessageSquareIcon className="w-12 h-12" />} />
+                            <PlaceholderFrame label="Chat UI Screenshot (Desktop)" aspect="aspect-[16/10]" icon={<MessageSquareIcon className="w-12 h-12" />} />
                         </div>
                     </div>
 
                     {/* Feature 2: Contextual Prescription */}
                     <div className="flex flex-col-reverse md:flex-row items-center gap-16">
                         <div className="md:w-1/2 w-full">
-                            <PlaceholderFrame label="Book Recommendation Card" height="h-[400px]" icon={<BookIcon className="w-12 h-12" />} />
+                            <PlaceholderFrame label="Book Card UI" aspect="aspect-video" icon={<BookIcon className="w-12 h-12" />} />
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <div className="w-12 h-12 bg-sage-100 rounded-2xl flex items-center justify-center text-sage-700 mb-4">
@@ -138,7 +138,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                     <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
                                     <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
                                 </div>
-                                <PlaceholderFrame label="Desktop View (Library/Analytics)" height="h-[500px]" bg="bg-white" hideBorder icon={<ChartBarIcon className="w-12 h-12 text-sage-200" />} />
+                                <PlaceholderFrame label="Desktop View" aspect="aspect-[16/10]" bg="bg-white" hideBorder icon={<ChartBarIcon className="w-12 h-12 text-sage-200" />} />
                             </div>
                         </div>
 
@@ -146,7 +146,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                         <div className="w-full md:w-1/3 max-w-xs relative z-20 md:-ml-20 md:-mb-12">
                             <div className="bg-gray-900 rounded-[3rem] p-3 shadow-2xl border-4 border-gray-800">
                                 <div className="w-1/3 h-6 bg-black rounded-b-xl mx-auto absolute top-3 left-1/3 z-30" />
-                                <PlaceholderFrame label="Mobile View (Chat)" height="h-[600px]" bg="bg-white" radius="rounded-[2rem]" hideBorder icon={<MessageSquareIcon className="w-8 h-8 text-sage-200" />} />
+                                <PlaceholderFrame label="Mobile View" aspect="aspect-[9/19]" bg="bg-white" radius="rounded-[2rem]" hideBorder icon={<MessageSquareIcon className="w-8 h-8 text-sage-200" />} />
                             </div>
                         </div>
                     </div>
@@ -194,7 +194,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                             <div className="text-center mb-8">
                                 <h4 className="text-xl font-bold font-mono text-sage-200">System Architecture</h4>
                             </div>
-                            <PlaceholderFrame label="Architecture Diagram (Mermaid/Visio)" height="h-[400px]" bg="bg-sage-900/50" dark icon={<ShareIcon className="w-12 h-12 text-sage-700" />} />
+                            <PlaceholderFrame label="Architecture Diagram (Mermaid)" aspect="aspect-[21/9]" bg="bg-sage-900/50" dark icon={<ShareIcon className="w-12 h-12 text-sage-700" />} />
                         </div>
                     </div>
                 </div>
@@ -274,26 +274,26 @@ const SectionHeader: React.FC<{ badge: string, title: string, subtitle: string, 
 
 const PlaceholderFrame: React.FC<{
     label: string,
-    height: string,
+    aspect?: string, // changed from height to aspect
     bg?: string,
     dark?: boolean,
     icon?: React.ReactNode,
     radius?: string,
     hideBorder?: boolean
-}> = ({ label, height, bg = "bg-gray-100", dark, icon, radius = "rounded-xl", hideBorder }) => (
-    <div className={`w-full ${height} ${bg} ${radius} ${hideBorder ? '' : 'border-2 border-dashed'} ${dark ? 'border-sage-700' : 'border-sage-300'} flex flex-col items-center justify-center p-8 transition-all hover:bg-opacity-80 group cursor-pointer relative overflow-hidden`}>
+}> = ({ label, aspect = "aspect-video", bg = "bg-gray-100", dark, icon, radius = "rounded-xl", hideBorder }) => (
+    <div className={`w-full ${aspect} ${bg} ${radius} ${hideBorder ? '' : 'border-2 border-dashed'} ${dark ? 'border-sage-700' : 'border-sage-300'} flex flex-col items-center justify-center p-8 transition-all hover:bg-opacity-80 group cursor-pointer relative overflow-hidden`}>
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
             <div className={`mb-4 transition-transform group-hover:scale-110 ${dark ? 'text-sage-600' : 'text-sage-400'}`}>
                 {icon || <ShareIcon className="w-10 h-10" />}
             </div>
-            <span className={`font-mono text-sm font-bold uppercase tracking-wider ${dark ? 'text-sage-600' : 'text-sage-400'}`}>
+            <span className={`font-mono text-sm font-bold uppercase tracking-wider text-center px-4 ${dark ? 'text-sage-600' : 'text-sage-400'}`}>
                 {label}
             </span>
             <span className={`text-xs mt-2 ${dark ? 'text-sage-700' : 'text-sage-500'}`}>
-                (Drag & Drop Image Here)
+                (Size: {aspect === 'aspect-video' ? '16:9' : aspect.replace('aspect-[', '').replace(']', '')})
             </span>
         </div>
-        {/* Diagonal stripe pattern for placeholder feel */}
+        {/* Diagonal stripe pattern */}
         <div className="absolute inset-0 opacity-[0.03]"
             style={{ backgroundImage: 'linear-gradient(45deg, #000 25%, transparent 25%, transparent 50%, #000 50%, #000 75%, transparent 75%, transparent)', backgroundSize: '20px 20px' }}
         />
