@@ -1180,10 +1180,13 @@ const App: React.FC = () => {
       let processedContent = finalContent;
       let recommendedBooks: Book[] = [];
 
-      // Regex to find JSON array at the end of the string
+      // Regex to find JSON array (loosened to match anywhere, preferring the one with book titles)
       // Matches: ["Title", ...] optionally wrapped in markdown code blocks
-      const jsonRegex = /(?:```json\s*)?(\[[\s\S]*?\])(?:\s*```)?$/;
-      const match = finalContent.match(jsonRegex);
+      const jsonRegex = /(?:```json\s*)?(\[[\s\S]*?\])(?:\s*```)?/g;
+
+      // We look for the last match to avoid picking up random arrays in the text
+      const matches = [...finalContent.matchAll(jsonRegex)];
+      const match = matches.length > 0 ? matches[matches.length - 1] : null;
 
       if (match) {
         try {
