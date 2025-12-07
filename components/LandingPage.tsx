@@ -96,7 +96,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 label="Onboarding / Profile Setup"
                                 aspect="aspect-[16/10]"
                                 icon={<SparklesIcon className="w-12 h-12" />}
-                                imageSrc="/screenshots/step1_onboarding.png"
                             />
                         </div>
                     </div>
@@ -108,7 +107,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 label="Chat UI Screenshot (Deep Empathy)"
                                 aspect="aspect-[16/10]"
                                 icon={<MessageSquareIcon className="w-12 h-12" />}
-                                imageSrc="/screenshots/step2_chat.png"
                             />
                         </div>
                         <div className="md:w-1/2 space-y-6">
@@ -144,7 +142,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 aspect="aspect-[16/10]"
                                 bg="bg-white"
                                 icon={<BookIcon className="w-12 h-12" />}
-                                imageSrc="/screenshots/step3_prescription.png"
                             />
                         </div>
                     </div>
@@ -157,7 +154,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 aspect="aspect-[16/10]"
                                 bg="bg-white"
                                 icon={<ChartBarIcon className="w-12 h-12" />}
-                                imageSrc="/screenshots/step4_reading.png"
                             />
                         </div>
                         <div className="md:w-1/2 space-y-6">
@@ -190,7 +186,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 label="Reading Report & Chat History"
                                 aspect="aspect-[16/10]"
                                 icon={<HistoryIcon className="w-12 h-12" />}
-                                imageSrc="/screenshots/step5_report.png"
                             />
                         </div>
                     </div>
@@ -202,7 +197,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 label="Community Feed & Likes"
                                 aspect="aspect-[16/10]"
                                 icon={<ShareIcon className="w-12 h-12" />}
-                                imageSrc="/screenshots/step6_community.png"
                             />
                         </div>
                         <div className="md:w-1/2 space-y-6">
