@@ -8,7 +8,7 @@ export const dbService = {
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .single(); // Changed from maybeSingle()
+            .maybeSingle(); // Changed back to maybeSingle to handle missing profiles gracefully
 
         if (error) {
             console.error('Error fetching profile:', error);
@@ -21,8 +21,11 @@ export const dbService = {
     async updateUserProfile(userId: string, updates: { nickname?: string; location?: string; age_group?: string; avatar_url?: string; favorite_books?: Book[] }) {
         const { data, error } = await supabase
             .from('profiles')
-            .update(updates)
-            .eq('id', userId)
+            .upsert({
+                id: userId,
+                ...updates,
+                updated_at: new Date().toISOString()
+            })
             .select()
             .single();
 
