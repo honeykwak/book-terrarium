@@ -96,6 +96,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 label="Onboarding / Profile Setup"
                                 aspect="aspect-[16/10]"
                                 icon={<SparklesIcon className="w-12 h-12" />}
+                                imageSrc="/images/1.png"
+                                imageAlt="Onboarding Screen"
                             />
                         </div>
                     </div>
@@ -107,6 +109,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 label="Chat UI Screenshot (Deep Empathy)"
                                 aspect="aspect-[16/10]"
                                 icon={<MessageSquareIcon className="w-12 h-12" />}
+                                imageSrc="/images/2.png"
+                                imageAlt="Chat Interface"
                             />
                         </div>
                         <div className="md:w-1/2 space-y-6">
@@ -142,6 +146,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 aspect="aspect-[16/10]"
                                 bg="bg-white"
                                 icon={<BookIcon className="w-12 h-12" />}
+                                imageSrc="/images/3.png"
+                                imageAlt="Book Recommendation"
                             />
                         </div>
                     </div>
@@ -154,6 +160,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 aspect="aspect-[16/10]"
                                 bg="bg-white"
                                 icon={<ChartBarIcon className="w-12 h-12" />}
+                                imageSrc="/images/4.png"
+                                imageAlt="Reading Timer"
                             />
                         </div>
                         <div className="md:w-1/2 space-y-6">
@@ -186,6 +194,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 label="Reading Report & Chat History"
                                 aspect="aspect-[16/10]"
                                 icon={<HistoryIcon className="w-12 h-12" />}
+                                imageSrc="/images/5.png"
+                                imageAlt="Reading Report"
                             />
                         </div>
                     </div>
@@ -197,6 +207,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                 label="Community Feed & Likes"
                                 aspect="aspect-[16/10]"
                                 icon={<ShareIcon className="w-12 h-12" />}
+                                imageSrc="/images/6.png"
+                                imageAlt="Community Feed"
                             />
                         </div>
                         <div className="md:w-1/2 space-y-6">
@@ -229,7 +241,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                                     <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
                                     <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
                                 </div>
-                                <PlaceholderFrame label="Desktop View" aspect="aspect-[16/10]" bg="bg-white" hideBorder icon={<ChartBarIcon className="w-12 h-12 text-sage-200" />} />
+                                <PlaceholderFrame label="Desktop View" aspect="aspect-[16/10]" bg="bg-white" hideBorder icon={<ChartBarIcon className="w-12 h-12 text-sage-200" />} imageSrc="/images/PC.png" imageAlt="Desktop App View" />
                             </div>
                         </div>
 
@@ -237,7 +249,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                         <div className="w-full md:w-1/3 max-w-xs relative z-20 md:-ml-20 md:-mb-12">
                             <div className="bg-gray-900 rounded-[3rem] p-3 shadow-2xl border-4 border-gray-800">
                                 <div className="w-1/3 h-6 bg-black rounded-b-xl mx-auto absolute top-3 left-1/3 z-30" />
-                                <PlaceholderFrame label="Mobile View" aspect="aspect-[9/19]" bg="bg-white" radius="rounded-[2rem]" hideBorder icon={<MessageSquareIcon className="w-8 h-8 text-sage-200" />} />
+                                <PlaceholderFrame label="Mobile View" aspect="aspect-[9/19]" bg="bg-white" radius="rounded-[2rem]" hideBorder icon={<MessageSquareIcon className="w-8 h-8 text-sage-200" />} imageSrc="/images/mobile.png" imageAlt="Mobile App View" />
                             </div>
                         </div>
                     </div>
