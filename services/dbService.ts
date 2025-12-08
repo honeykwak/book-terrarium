@@ -23,8 +23,7 @@ export const dbService = {
             .from('profiles')
             .upsert({
                 id: userId,
-                ...updates,
-                updated_at: new Date().toISOString()
+                ...updates
             })
             .select()
             .single();
