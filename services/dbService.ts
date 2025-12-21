@@ -140,8 +140,25 @@ export const dbService = {
     },
 
     async hardDeleteUser(userId: string) {
-        // 1. Delete Messages (Cascade logic usually handles this if sessions deleted, but explicit is safer)
-        // Actually, deleting sessions is easier.
+        // 0. Nullify Profile (Safety Net: If delete fails, this ensures Onboarding triggers)
+        try {
+            await this.updateUserProfile(userId, { nickname: '' });
+        } catch (e) {
+            console.warn('Failed to clear profile before delete:', e);
+        }
+
+        // 1. Delete Messages (Explicitly)
+        // Since we can't easily query all sessions derived from user, we rely on session deletion cascading
+        // OR we delete messages where session_id IN (select id from chat_sessions where user_id = userId)
+        // However, Supabase client doesn't support subquery delete easily without RPC.
+        // We will fetch sessions first.
+        const sessions = await this.getUserSessions(userId);
+        if (sessions.length > 0) {
+            const sessionIds = sessions.map(s => s.id);
+            if (sessionIds.length > 0) {
+                await supabase.from('messages').delete().in('session_id', sessionIds);
+            }
+        }
 
         // 2. Delete Chat Sessions
         const { error: sessionError } = await supabase

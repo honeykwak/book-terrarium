@@ -793,7 +793,7 @@ const App: React.FC = () => {
     try {
       // 1. Profile
       const profile = await dbService.getUserProfile(userId);
-      if (profile) {
+      if (profile && profile.nickname) {
         setUserName(profile.nickname);
         setUserProfile(profile);
         setAppState('MAIN');
