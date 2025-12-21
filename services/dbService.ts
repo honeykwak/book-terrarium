@@ -139,6 +139,35 @@ export const dbService = {
         if (error) throw error;
     },
 
+    async hardDeleteUser(userId: string) {
+        // 1. Delete Messages (Cascade logic usually handles this if sessions deleted, but explicit is safer)
+        // Actually, deleting sessions is easier.
+
+        // 2. Delete Chat Sessions
+        const { error: sessionError } = await supabase
+            .from('chat_sessions')
+            .delete()
+            .eq('user_id', userId);
+        if (sessionError) throw sessionError;
+
+        // 3. Delete Post Likes
+        const { error: likeError } = await supabase
+            .from('post_likes')
+            .delete()
+            .eq('user_id', userId);
+        if (likeError) throw likeError;
+
+        // 4. Delete User Books
+        const { error: bookError } = await supabase
+            .from('user_books')
+            .delete()
+            .eq('user_id', userId);
+        if (bookError) throw bookError;
+
+        // 5. Delete Profile
+        await this.deleteUserProfile(userId);
+    },
+
     // --- Chat Sessions ---
     async getBookChatHistory(userBookId: string): Promise<Message[]> {
         // 1. Get all sessions for this book

@@ -1342,16 +1342,25 @@ const App: React.FC = () => {
     }
   };
 
-  const handleDeleteAccount = async () => {
+  const handleDeleteAccount = async (deleteData: boolean) => {
     if (!session?.user) return;
     try {
-      await dbService.deleteUserProfile(session.user.id);
+      if (deleteData) {
+        // Hard Delete: Wipe all data
+        await dbService.hardDeleteUser(session.user.id);
+        alert("모든 데이터가 삭제되었습니다. 이용해 주셔서 감사합니다.");
+      } else {
+        // Soft Delete: Meaning just Sign Out/Deactivate in user's mind
+        // We do nothing to DB, just sign out.
+        // User requested: "If unchecked... existing info remains".
+      }
+
       await supabase.auth.signOut();
       setAppState('LOGIN');
       window.location.reload();
     } catch (error) {
       console.error("Failed to delete account", error);
-      alert("계정 삭제에 실패했습니다.");
+      alert("작업 중 오류가 발생했습니다.");
     }
   };
 
