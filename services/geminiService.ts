@@ -174,7 +174,10 @@ export const generateReport = async (messages: Message[]): Promise<any> => {
     const response = result.response;
     const text = response.text();
 
-    return JSON.parse(text);
+    // Clean up potential markdown code blocks
+    const cleanText = text.replace(/```json\n?|\n?```/g, '').trim();
+
+    return JSON.parse(cleanText);
   } catch (error) {
     console.error("Error generating report:", error);
     // Fallback if AI fails
