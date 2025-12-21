@@ -51,9 +51,15 @@ const ReadingCalendar: React.FC<Props> = ({ activityData = {} }) => {
                                     <div
                                         key={dateKey}
                                         className={`w-2.5 h-2.5 rounded-[1px] ${getColor(count)} transition-all hover:scale-125 hover:z-10 relative group`}
-                                        title={`${dateKey}: ${count} messages`}
                                     >
-                                        {/* Tooltip via browser title for now, or custom if needed */}
+                                        {/* Custom Tooltip */}
+                                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover:block z-20 whitespace-nowrap">
+                                            <div className="bg-sage-800 text-white text-[10px] px-2 py-1 rounded shadow-lg">
+                                                {dateKey}: {count} messages
+                                            </div>
+                                            {/* Triangle */}
+                                            <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-sage-800 absolute left-1/2 transform -translate-x-1/2 top-full"></div>
+                                        </div>
                                     </div>
                                 );
                             })}

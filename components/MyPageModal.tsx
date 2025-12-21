@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LogOutIcon, EditIcon, CheckCircleIcon, XIcon, SpinnerIcon } from './Icon';
 import ReadingCalendar from './ReadingCalendar';
+import { Helmet } from 'react-helmet-async';
 
 interface MyPageModalProps {
     userName: string;
@@ -48,6 +49,9 @@ const MyPageModal: React.FC<MyPageModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-sage-900/40 backdrop-blur-sm">
+            <Helmet>
+                <title>마이페이지 | {userName}</title>
+            </Helmet>
             <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-fade-in-up">
                 {/* Header */}
                 <div className="bg-sage-100/50 p-6 text-center border-b border-sage-100 relative">

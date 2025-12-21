@@ -669,10 +669,19 @@ const SidebarContent: React.FC<{
 
 };
 
+import { Helmet } from 'react-helmet-async';
+
 const App: React.FC = () => {
   // --- Special Route: Landing Page (/info) ---
   if (window.location.pathname === '/info') {
-    return <LandingPage onStart={() => window.location.href = '/'} />;
+    return (
+      <>
+        <Helmet>
+          <title>소개 | 북 테라리움, 소원</title>
+        </Helmet>
+        <LandingPage onStart={() => window.location.href = '/'} />
+      </>
+    );
   }
 
   // Session State

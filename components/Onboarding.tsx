@@ -3,6 +3,7 @@ import { KOREA_REGIONS } from '../constants';
 import { searchBooks } from '../services/googleBooksService';
 import { Book } from '../types';
 import { BookIcon, CheckCircleIcon, SearchIcon, XIcon, PlusIcon, SpinnerIcon } from './Icon';
+import { Helmet } from 'react-helmet-async';
 
 interface OnboardingProps {
   initialName: string;
@@ -405,6 +406,9 @@ const Onboarding: React.FC<OnboardingProps> = ({ initialName, onComplete, onLogo
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#E8F0E8] p-4 relative">
+      <Helmet>
+        <title>온보딩 | 북 테라리움</title>
+      </Helmet>
       <button
         onClick={onLogout}
         className="absolute top-4 right-4 text-xs text-sage-500 hover:text-sage-700 underline z-10"
